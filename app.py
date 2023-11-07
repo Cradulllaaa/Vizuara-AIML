@@ -635,7 +635,7 @@ def main():
                 st.write("Feel free to explore and learn from the weight visualization of the neural network.")
 
 
-        if app_mode == "CNN and MNIST 🧩":
+        if app_mode == "CNN and MNIST 📉":
             st.title("Convolutional Neural Networks and MNIST Image Dataset")
             add_vertical_space(2)
 
