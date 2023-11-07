@@ -161,7 +161,7 @@ def main():
             st.markdown("You can adjust the number of hidden neurons in the network. Think of these neurons as tiny helpers that work together to understand things. More neurons can help the network learn complex stuff.")
 
             # Create a simple image to visually represent the neural network
-            image_url = "images/mlp_mnist.png"  # You can replace this with an actual image URL
+            image_url = "images/mlp_mnist.png" 
             
             st.write("Let's explore the neural network:")
             st.write(f"- It has an Input Layer with 784 neurons, which is like the network's eyes.")
@@ -174,7 +174,7 @@ def main():
             st.write("Imagine this network is learning to recognize handwritten numbers. When you adjust the number of hidden neurons, you're making its brain more or less complex.")
             st.write(f"With {num_hidden_neurons} neurons, it's getting smarter and can recognize more details in the numbers.")
 
-            # Show the impact of the network
+            # impact of the network
             if num_hidden_neurons >= 128:
                 st.write("Look how well it's doing with many neurons! It's like a super-smart computer.")
             else:
@@ -208,7 +208,7 @@ def main():
             
             # num_filters = st.slider("Number of Filters", min_value=1, max_value=16, value=8)
 
-            # # Show the impact of filters
+            # # impact of filters
             # st.write(f"With {num_filters} filters, our superhero can examine {num_filters} different parts of an image at once. They become super detectives!")
 
             # # Create an interactive adventure
