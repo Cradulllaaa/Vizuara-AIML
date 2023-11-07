@@ -1,2 +1,2 @@
 # Vizuara-AIML
-This is the project for ML engineer at Vizuara
+This is a project for ML engineer at Vizuara
