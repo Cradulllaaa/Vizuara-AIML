@@ -28,6 +28,7 @@ from bokeh.layouts import layout
 from torchvision import datasets
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from digit_recogniser import DigitRecognizer
 
 
 # Main Application
@@ -35,7 +36,7 @@ def main():
         # Create the app
         #st.title('Vizuara AI Labs - Handwritten Text Classification')
         st.sidebar.title('Navigation 😀 ')
-        menu = ["Home 🏠","Machine Learning Basics 📖", "Neural Networks 🧠","Convolutional Neural Networks 🤔", "Dataset 📚","Image Training 📷", "Neural Networks and MNIST 🔢", "Neural Networks model 🖥 ", "CNN and MNIST 🧩","Convolutional Neural Network model 📉", "Hands-on Examples 🔏"]
+        menu = ["Home 🏠","Machine Learning Basics 📖", "Neural Networks 🧠","Convolutional Neural Networks 🤔", "Dataset 📚", "Neural Networks and MNIST 🔢", "Neural Networks model 🖥 ", "CNN and MNIST 🧩","Convolutional Neural Network model 📉", "Hands-on Examples 🔏"]
         app_mode = st.sidebar.selectbox("Menu",menu)
 
         
@@ -263,52 +264,11 @@ def main():
 
             st.image("images/animals.png", caption="Your Animal Dataset", use_column_width=True)
             
-            
-            transform = transforms.Compose([transforms.Grayscale(num_output_channels=1), transforms.Resize((28, 28)), transforms.ToTensor()])
-
-            # Create a custom dataset using this transform
-            mnist_dataset = datasets.MNIST(root='./data', train=True, transform=transform, download=True)
-            
-            # Define a simple feedforward neural network for digit recognition
-            class DigitRecognizer(torch.nn.Module):
-                def __init__(self):
-                    super(DigitRecognizer, self).__init__()
-                    self.fc1 = torch.nn.Linear(28 * 28, 128)
-                    self.fc2 = torch.nn.Linear(128, 10)
-
-                def forward(self, x):
-                    x = x.view(-1, 28 * 28)
-                    x = torch.relu(self.fc1(x))
-                    x = self.fc2(x)
-                    return torch.log_softmax(x, dim=1)
-
-            model = DigitRecognizer()
-
-
-            criterion = nn.CrossEntropyLoss()
-            optimizer = optim.Adam(model.parameters(), lr=0.001)
-
-            # Load data into DataLoader
-            train_loader = DataLoader(mnist_dataset, batch_size=32, shuffle=True)
-
-
-
-            # Training loop
-            for epoch in range(5):
-                for data, target in train_loader:
-                    optimizer.zero_grad()
-                    outputs = model(data)
-                    loss = criterion(outputs, target)
-                    loss.backward()
-                    optimizer.step()
-
-
-            torch.save(model.state_dict(), 'digit_recognizer.pth')
-
-
             # Function to recognize a drawn digit
             def recognize_digit(digit_image, model):
-                digit_image = Image.open(io.BytesIO(base64.b64decode(digit_image)))
+                print(digit_image)
+                digit_image = Image.fromarray(digit_image)
+                print(digit_image)
                 transform = transforms.Compose([transforms.Grayscale(num_output_channels=1), transforms.Resize((28, 28)), transforms.ToTensor()])
                 digit_image = transform(digit_image).unsqueeze(0)
                 with torch.no_grad():
@@ -406,7 +366,7 @@ def main():
                     st.subheader("Blurring Images")
                     st.write("Blurring reduces noise and can make it easier for the machine to focus on the important features of an image.")
                     st.write("Here's an example of a blurred MNIST digit:")
-                    st.image("images/blurred_mnist.png", caption="Blurred MNIST Digit", use_column_width=True)
+                    st.image("images/blurred_mnist.png", caption="Blurred MNIST Digit")
 
                     # Add explanation and code for blurring
                     st.subheader("How to Apply Blurring")
@@ -448,40 +408,39 @@ def main():
 
 
 
-        if app_mode == "Image Training 📷":
+        # if app_mode == "Image Training 📷":
             
-            mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
-            X = mnist.data.astype('float32')
-            y = mnist.target.astype('int64')
-            X /= 255.0
+        #     mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
+        #     X = mnist.data.astype('float32')
+        #     y = mnist.target.astype('int64')
+        #     X /= 255.0
            
-            # Print a selection of training images and their labels
+        #     # Print a selection of training images and their labels
             
-            st.subheader('Sample Training Images and Labels')
-            st.write('Here are some example images from the MNIST dataset')
+        #     st.subheader('Sample Training Images and Labels')
+        #     st.write('Here are some example images from the MNIST dataset')
 
-            # Add content to the "Loading Data" section
-            st.header('Loading Data')
+        #     # Add content to the "Loading Data" section
+        #     st.header('Loading Data')
             
-            def plot_example(X, y):
-                """Plot the first 100 images in a 10x10 grid."""
-                plt.figure(figsize=(28, 28))  # Set figure size to be larger (you can adjust as needed)
+        #     def plot_example(X, y):
+        #         """Plot the first 100 images in a 10x10 grid."""
+        #         plt.figure(figsize=(28, 28))  # Set figure size to be larger (you can adjust as needed)
 
-                for i in range(10):  # For 10 rows
-                    for j in range(10):  # For 10 columns
-                        index = i * 10 + j
-                        plt.subplot(10, 10, index + 1)  # 10 rows, 10 columns, current index
-                        plt.imshow(X[index].reshape(28, 28))  # Display the image
-                        plt.xticks([])  # Remove x-ticks
-                        plt.yticks([])  # Remove y-ticks
-                        plt.title(y[index], fontsize=8)  # Display the label as title with reduced font size
+        #         for i in range(10):  # For 10 rows
+        #             for j in range(10):  # For 10 columns
+        #                 index = i * 10 + j
+        #                 plt.subplot(10, 10, index + 1)  # 10 rows, 10 columns, current index
+        #                 plt.imshow(X[index].reshape(28, 28))  # Display the image
+        #                 plt.xticks([])  # Remove x-ticks
+        #                 plt.yticks([])  # Remove y-ticks
+        #                 plt.title(y[index], fontsize=8)  # Display the label as title with reduced font size
 
-                plt.subplots_adjust(wspace=0.5, hspace=0.5)  # Adjust spacing (you can modify as needed)
-                plt.tight_layout()  # Adjust the spacing between plots for better visualization
-                #plt.show()  # Display the entire grid
-                st.image
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
-            plot_example(X_train, y_train)
+        #         plt.subplots_adjust(wspace=0.5, hspace=0.5)  # Adjust spacing (you can modify as needed)
+        #         plt.tight_layout()  # Adjust the spacing between plots for better visualization
+        #         #plt.show()  # Display the entire grid
+        #         st.image
+            
 
     
         if app_mode == "Neural Networks and MNIST 🔢":
@@ -499,19 +458,68 @@ def main():
                 # Training parameter selection
                 st.header("Training Parameters")
                 hidden_dimensions = st.slider("Hidden Dimensions", min_value=16, max_value=256, step=16)
-                epochs = st.slider("Epochs", min_value=10, max_value=100, step=10)
-                learning_rate = st.slider("Learning Rate", min_value=0.01, max_value=0.1, step=0.01)
+                epochs = st.slider("Epochs", min_value=1, max_value=10, step=1)
+                learning_rate = st.slider("Learning Rate", min_value=0.001, max_value=0.1, step=0.01)
 
                 st.write("You can adjust the hidden layer dimensions, the number of training epochs, and the learning rate to influence model training.")
                 st.write("Once you've made your selections, proceed to the 'Result Explanation' page to see how these parameters affect the model.")
+                
 
-                if st.button("Proceed to Result Explanation"):
-                    nn_app_mode = "Result Explanation"
+
+
+                if st.button("Load data"):
+                    #Preprocessng data 
+                    mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
+                    X = mnist.data.astype('float32')
+                    y = mnist.target.astype('int64')
+                    X /= 255.0
+                                                                            
+                    # Add content to the "Build Neural Network with Pytorch" section
+                    st.header("Build Neural Network with Pytorch")
+                    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+                    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+                    # plot_example(X_train, y_train)
+
+                    mnist_dim = X.shape[1]
+                    hidden_dim = int(mnist_dim/8)
+                    output_dim = len(np.unique(mnist.target))
+
+
+                    # Define a simple Pytorch model
+                    model = ClassifierModule(
+                        mnist_dim, hidden_dim, output_dim
+                    )
+
+                    # Create a button to train the model
+
+                    if st.button("Train model"):
+                        net = NeuralNetClassifier(
+                        ClassifierModule,
+                        max_epochs=20,
+                        lr=0.1,
+                        device=device)
+                        
+                        net.fit(X_train, y_train)
+
+                        st.write("Training Complete")
+
+                    # Add content to the "Prediction" section
+                        st.header("Prediction")
+
+                        y_pred = net.predict(X_test)
+
+                        accuracy = accuracy_score(y_test, y_pred)
+                        st.write(f'Accuracy: {accuracy:.3%}')
+                        #error_mask = y_pred != y_test
+                        #plot_example(X_test[error_mask], y_pred[error_mask])
+                    
+                        nn_app_mode = "Result Explanation"
 
             if nn_app_mode == "Result Explanation":
                 st.write("In this section, you will explore the results of the model training based on the chosen parameters.")
                 add_vertical_space(2)
-                nn_model = torch.load("model_nn.py")
+                #nn_model = torch.load("model_nn.py")
                 # Result Explanation Page
                 def cnn_result_explanation():
                     st.title("Result Explanation (CNN)")
@@ -574,7 +582,7 @@ def main():
                         st.write("You can draw an image, and the CNN model will predict the digit.")
                         
                         # Add a canvas for drawing
-                        canvas = st.canvas(
+                        canvas = st_canvas(
                             fill_color="black",
                             stroke_width=5,
                             stroke_color="white",
@@ -623,54 +631,6 @@ def main():
 
                 st.write("Feel free to explore and learn from the weight visualization of the neural network.")
 
-        
-        if app_mode == "Neural Network model 🖥":
-
-
-            #Preprocessng data 
-            mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
-            X = mnist.data.astype('float32')
-            y = mnist.target.astype('int64')
-            X /= 255.0
-                                                                      
-            # Add content to the "Build Neural Network with Pytorch" section
-            st.header("Build Neural Network with Pytorch")
-            device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-            mnist_dim = X.shape[1]
-            hidden_dim = int(mnist_dim/8)
-            output_dim = len(np.unique(mnist.target))
-
-
-            # Define a simple Pytorch model
-            model = ClassifierModule(
-                mnist_dim, hidden_dim, output_dim
-            )
-
-            # Create a button to train the model
-
-            if st.button("Train Model"):
-                net = NeuralNetClassifier(
-                ClassifierModule,
-                max_epochs=20,
-                lr=0.1,
-                device=device)
-                
-                net.fit(X_train, y_train)
-
-                st.write("Training Complete")
-
-            # Add content to the "Prediction" section
-                st.header("Prediction")
-
-                y_pred = net.predict(X_test)
-
-                accuracy = accuracy_score(y_test, y_pred)
-                st.write(f'Accuracy: {accuracy:.3%}')
-                #error_mask = y_pred != y_test
-                #plot_example(X_test[error_mask], y_pred[error_mask])
-
-
 
         if app_mode == "CNN and MNIST 🧩":
             st.title("Convolutional Neural Networks and MNIST Image Dataset")
@@ -694,6 +654,43 @@ def main():
                 st.write("Once you've made your selections, proceed to the 'Result Explanation' page to see how these parameters affect the model.")
 
                 if st.button("Proceed to Result Explanation"):
+
+                    #Preprocessng data 
+                    mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
+                    X = mnist.data.astype('float32')
+                    y = mnist.target.astype('int64')
+                    X /= 255.0
+
+                    XCnn = X.reshape(-1, 1, 28, 28)
+                    XCnn_train, XCnn_test, y_train, y_test = train_test_split(XCnn, y, test_size=0.25, random_state=42)
+
+                    # Interactive Features
+
+                    # Create a slider for the number of hidden units
+                    num_hidden_units = st.slider("Select the number of hidden units: ", min_value =1, max_value = 200, value = 98)
+
+                    # Create a button to train the model
+
+                    if st.button("Train Model"):
+                        cnn = NeuralNetClassifier(
+                        Cnn,
+                        max_epochs=10,
+                        lr=0.002,
+                        optimizer=torch.optim.Adam)
+
+                        cnn.fit(XCnn_train, y_train)
+
+                        st.write("Training Complete")
+
+
+                        st.header("Prediction")
+
+                        y_pred_cnn = cnn.predict(XCnn_test)
+
+                        accuracy = accuracy_score(y_test, y_pred_cnn)
+                        st.write(f'Accuracy: {accuracy:.3%}')
+                        #error_mask = y_pred != y_test
+                        #plot_example(X_test[error_mask], y_pred_cnn[error_mask])
                     cnn_app_mode = "Result Explanation"
 
             if cnn_app_mode == "Result Explanation":
@@ -736,54 +733,7 @@ def main():
 
         # Add additional sections and interactive elements as needed.
         
-        
-        
-        
-        if app_mode == "Convolutional Neural Network model 📉":
-
       
-            st.header("Convolutional Network")
-
-
-            #Preprocessng data 
-            mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
-            X = mnist.data.astype('float32')
-            y = mnist.target.astype('int64')
-            X /= 255.0
-
-            XCnn = X.reshape(-1, 1, 28, 28)
-            XCnn_train, XCnn_test, y_train, y_test = train_test_split(XCnn, y, test_size=0.25, random_state=42)
-
-            # Interactive Features
-
-            # Create a slider for the number of hidden units
-            num_hidden_units = st.slider("Select the number of hidden units: ", min_value =1, max_value = 200, value = 98)
-
-            # Create a button to train the model
-
-            if st.button("Train Model"):
-                cnn = NeuralNetClassifier(
-                Cnn,
-                max_epochs=10,
-                lr=0.002,
-                optimizer=torch.optim.Adam)
-
-                cnn.fit(XCnn_train, y_train)
-
-                st.write("Training Complete")
-
-
-                st.header("Prediction")
-
-                y_pred_cnn = cnn.predict(XCnn_test)
-
-                accuracy = accuracy_score(y_test, y_pred_cnn)
-                st.write(f'Accuracy: {accuracy:.3%}')
-                #error_mask = y_pred != y_test
-                #plot_example(X_test[error_mask], y_pred_cnn[error_mask])
-           
-
-                  
         # Hands-on Examples page
         if app_mode == "Hands-on Examples 🔏":
             st.title("Hands-on Examples")
@@ -792,11 +742,6 @@ def main():
             st.write("Explore practical machine learning examples with interactive code snippets.")
                 
      
-
-      
-
-
-
 if __name__ == '__main__':
     st.set_page_config(page_title="Handwritten Text Classification", layout="wide") 
     main()
