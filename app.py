@@ -205,7 +205,7 @@ def main():
             # st.write("Welcome to te Superhero Adventure! Join our superhero, Super Detecto, on an exciting mission to uncover hidden patterns in an image. Get ready to be amazed!")
             # st.subheader("JAdjust Super Detecto's Powers")
 
-            # # Allow kids to adjust the number of filters
+            
             # num_filters = st.slider("Number of Filters", min_value=1, max_value=16, value=8)
 
             # # Show the impact of filters
@@ -240,7 +240,7 @@ def main():
             # if st.button("What's Happening?"):
             #     st.write("In this superhero adventure, Super Detecto scans the canvas to find special patterns. Each filter in their magic toolbox looks for something different. It's like a magical treasure hunt!")
 
-            # # Add more interactive elements, explanations, and code snippets as needed
+          
        
         if app_mode == "Dataset":
             # Page Title
@@ -545,7 +545,7 @@ def main():
                 # Confusion matrix and insights
 
                 st.write("A confusion matrix helps us understand how the model performs for different digits.")
-                # You can add your confusion matrix image here using st.image().
+                
 
                 st.write("Hover over each cell to see the model's confidence and see a sampling of top instances from each cell.")
                 st.write("We can also gain insights by visualizing the top samples for each cell, giving us an impression of how the network learns to make predictions.")
@@ -610,10 +610,10 @@ def main():
                 inference_option = st.radio("Choose an Inference Method", ["Upload Image", "Draw Image"])
 
                 if inference_option == "Upload Image":
-                    # You can add code for image upload and prediction here.
+                    # code for image upload and prediction here.
                     pass
                 else:
-                    # You can add code for drawing an image and making predictions here.
+                   
                     pass
 
                 st.write("Explore the neural network's capabilities and test its performance by using the inference options.")
@@ -624,7 +624,7 @@ def main():
 
                 st.header("Visualizing Weights")
                 st.write("Let's take a closer look at the weights of the neural network model.")
-                # You can add code for visualizing weights here.
+                # code for visualizing weights here.
                 st.image("images/weight_visualization.png", caption="Weight Visualization", use_column_width=True)
                 st.write("The weight visualization provides insights into how the network learns and makes predictions. You can see the importance of different features and how they affect the final output.")
                 st.write("Hover over the weights to see more details.")
@@ -714,7 +714,7 @@ def main():
                 # Confusion matrix and insights
 
                 st.write("A confusion matrix helps us understand how the CNN model performs for different digits.")
-                # You can add your confusion matrix image here using st.image().
+                
 
                 st.write("Hover over each cell to see the model's confidence and see a sampling of top instances from each cell.")
                 st.write("We can also gain insights by visualizing the top samples for each cell, giving us an impression of how the CNN network learns to make predictions.")
@@ -749,7 +749,7 @@ def main():
         
         if app_mode == "Convolutional Neural Network model":
 
-            # Add content to the "Convolutional Network" section
+      
             st.header("Convolutional Network")
 
 
@@ -797,12 +797,12 @@ def main():
         if app_mode == "Hands-on Examples":
             st.title("Hands-on Examples")
                 
-                # Add content for the hands-on examples page
+               
             st.write("Explore practical machine learning examples with interactive code snippets.")
                 
-                # You can add examples, code snippets, and interactive features here
+     
 
-            # Run the Streamlit app
+      
 
 
 
