@@ -36,7 +36,7 @@ def main():
         # Create the app
         #st.title('Vizuara AI Labs - Handwritten Text Classification')
         st.sidebar.title('Navigation 😀 ')
-        menu = ["Home 🏠","Machine Learning Basics 📖", "Neural Networks 🧠","Convolutional Neural Networks 🤔", "Dataset 📚", "Neural Networks and MNIST 🔢", "Neural Networks model 🖥 ", "CNN and MNIST 🧩","Convolutional Neural Network model 📉", "Hands-on Examples 🔏"]
+        menu = ["Home 🏠","Machine Learning Basics 📖", "Neural Networks 🧠","Convolutional Neural Networks 🤔", "Dataset 📚", "Neural Networks and MNIST 🔢", "CNN and MNIST 📉", "Hands-on Examples 🔏"]
         app_mode = st.sidebar.selectbox("Menu",menu)
 
         
@@ -302,7 +302,9 @@ def main():
                 # Add content for exploring MNIST
                 st.title("MNIST Dataset")
                 st.write("The MNIST dataset is a collection of handwritten digits widely used in machine learning.")
+                
                 st.write("It contains 28x28 grayscale images of digits from 0 to 9. Let's explore some sample images:")
+                st.image("images/MNIST-sample.png")
 
                 # Sample MNIST images
                 #mnist_images = [Image.open(f"images/mnist_{i}.png") for i in range(10)]
@@ -311,6 +313,7 @@ def main():
                 st.subheader("What Is MNIST?")
                 st.write("MNIST stands for Modified National Institute of Standards and Technology.")
                 st.write("It's a dataset of handwritten digits used to train and test various machine learning models.")
+                st.image("images/mnist-3.png")
                 st.write("Each image is 28x28 pixels, and the dataset contains 60,000 training and 10,000 test images.")
 
                 st.subheader("Why Is MNIST Important?")
