@@ -1,0 +1,6 @@
+streamlit==1.2.0
+numpy==1.26.1
+Pillow==8.3.2
+pickle-mixin==1.0.2
+torch==1.13.0
+skorch==0.10.0
