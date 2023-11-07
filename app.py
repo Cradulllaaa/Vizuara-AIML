@@ -46,7 +46,7 @@ def main():
         # Create the app
         #st.title('Vizuara AI Labs - Handwritten Text Classification')
         st.sidebar.title('Navigation')
-        menu = ["Home","Machine Learning Basics", "Neural Networks","Convolutional Neural Networks", "Dataset","Image Training", "Neural Networks model", "Convolutional Neural Network model"]
+        menu = ["Home","Machine Learning Basics", "Neural Networks","Convolutional Neural Networks", "Dataset","Image Training", "Neural Networks and MNIST", "Neural Networks model", "CNN and MNIST","Convolutional Neural Network model"]
         app_mode = st.sidebar.selectbox("Menu",menu)
 
         
@@ -358,8 +358,8 @@ def main():
                 st.write("It contains 28x28 grayscale images of digits from 0 to 9. Let's explore some sample images:")
 
                 # Sample MNIST images
-                mnist_images = [Image.open(f"images/mnist_{i}.png") for i in range(10)]
-                st.image(mnist_images, caption=[str(i) for i in range(10)], width=100)
+                #mnist_images = [Image.open(f"images/mnist_{i}.png") for i in range(10)]
+                #st.image(mnist_images, caption=[str(i) for i in range(10)], width=100)
 
                 st.subheader("What Is MNIST?")
                 st.write("MNIST stands for Modified National Institute of Standards and Technology.")
@@ -492,8 +492,147 @@ def main():
 
             # plot_example(X_train, y_train)
 
-        
+    
+        if app_mode == "Neural Networks and MNIST":
+            st.title("Neural Networks and MNIST Image Dataset")
+            add_vertical_space(2)
 
+            st.sidebar.subheader("Navigation")
+            nn_menu = ["Training Parameters", "Result Explanation", "Inference", "Visualizing Weights"]
+            nn_app_mode = st.sidebar.selectbox("Menu", nn_menu)
+
+            if nn_app_mode == "Training Parameters":
+                st.write("In this section, you can choose training parameters for your neural network model.")
+                add_vertical_space(2)
+
+                # Training parameter selection
+                st.header("Training Parameters")
+                hidden_dimensions = st.slider("Hidden Dimensions", min_value=16, max_value=256, step=16)
+                epochs = st.slider("Epochs", min_value=10, max_value=100, step=10)
+                learning_rate = st.slider("Learning Rate", min_value=0.01, max_value=0.1, step=0.01)
+
+                st.write("You can adjust the hidden layer dimensions, the number of training epochs, and the learning rate to influence model training.")
+                st.write("Once you've made your selections, proceed to the 'Result Explanation' page to see how these parameters affect the model.")
+
+                if st.button("Proceed to Result Explanation"):
+                    nn_app_mode = "Result Explanation"
+
+            if nn_app_mode == "Result Explanation":
+                st.write("In this section, you will explore the results of the model training based on the chosen parameters.")
+                add_vertical_space(2)
+                nn_model = torch.load("model_nn.py")
+                # Result Explanation Page
+                def cnn_result_explanation():
+                    st.title("Result Explanation (CNN)")
+
+                    # Load confusion matrix and top samples images
+                    confusion_matrix_image = Image.open("confusion_matrix_cnn.png")  # Replace with your image path
+                    top_samples_image = Image.open("top_samples_cnn.png")  # Replace with your image path
+
+                    st.write("In this section, you can explore the results of the CNN model training based on the chosen parameters.")
+                    st.header("Confusion Matrix (CNN)")
+                    st.image(confusion_matrix_image, caption="Confusion Matrix", use_column_width=True)
+
+                    st.header("Insights from Confusion Matrix")
+                    st.write("Hover over each cell to see the model's confidence and view top instances.")
+                    st.image(top_samples_image, caption="Top Samples", use_column_width=True)
+
+                    st.write("You can also gain insights by visualizing the top samples for each cell, giving you an impression of how the CNN network learns to make predictions.")
+
+
+                # Training result explanation
+                st.header("Result Explanation")
+                st.write("The neural network has been trained using the selected parameters, and now we will delve into the results.")
+                # Confusion matrix and insights
+
+                st.write("A confusion matrix helps us understand how the model performs for different digits.")
+                # You can add your confusion matrix image here using st.image().
+
+                st.write("Hover over each cell to see the model's confidence and see a sampling of top instances from each cell.")
+                st.write("We can also gain insights by visualizing the top samples for each cell, giving us an impression of how the network learns to make predictions.")
+
+                if st.button("Proceed to Inference"):
+                    nn_app_mode = "Inference"
+
+            if nn_app_mode == "Inference":
+                st.write("In this section, you can use the trained model to make predictions on new data.")
+                add_vertical_space(2)
+                # Inference Page
+                def cnn_inference():
+                    st.title("Inference (CNN)")
+
+                    st.write("In this section, you can use the trained CNN model to make predictions on new data.")
+                    st.header("Choose an Inference Method (CNN)")
+                    inference_method = st.radio("Select an Inference Method", ("Upload an Image", "Draw an Image"))
+
+                    if inference_method == "Upload an Image":
+                        st.write("You can upload an image, and the CNN model will predict the digit.")
+                        uploaded_image = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"])
+                        if uploaded_image is not None:
+                            image = Image.open(uploaded_image)
+                            st.image(image, caption="Uploaded Image", use_column_width=True)
+
+                            # Preprocess the image (replace with actual preprocessing steps)
+                            # Make predictions using the CNN model
+                            # Display prediction results
+                            # Example: 
+                            # prediction = cnn_model(image)  # Replace with actual prediction code
+                            # st.write(f"Predicted Digit: {prediction}")
+
+                    if inference_method == "Draw an Image":
+                        st.write("You can draw an image, and the CNN model will predict the digit.")
+                        
+                        # Add a canvas for drawing
+                        canvas = st.canvas(
+                            fill_color="black",
+                            stroke_width=5,
+                            stroke_color="white",
+                            background_color="white",
+                            width=200,
+                            height=200,
+                            drawing_mode="freedraw",
+                        )
+
+                        if st.button("Recognize Digit (CNN)"):
+                            # Get the drawn image
+                            drawn_image = canvas.image_data
+
+                            # Preprocess the drawn image (replace with actual preprocessing steps)
+                            # Make predictions using the CNN model
+                            # Display prediction results
+                            # Example:
+                            # prediction = cnn_model(drawn_image)  # Replace with actual prediction code
+                            # st.write(f"Predicted Digit: {prediction}")
+                st.header("Inference")
+                st.write("You have two options for making predictions:")
+                st.write("1. Upload an image and run a prediction.")
+                st.write("2. Draw an image and predict the number using the neural network.")
+                st.write("Choose either the 'Upload Image' or 'Draw Image' option below.")
+                inference_option = st.radio("Choose an Inference Method", ["Upload Image", "Draw Image"])
+
+                if inference_option == "Upload Image":
+                    # You can add code for image upload and prediction here.
+                    pass
+                else:
+                    # You can add code for drawing an image and making predictions here.
+                    pass
+
+                st.write("Explore the neural network's capabilities and test its performance by using the inference options.")
+
+            if nn_app_mode == "Visualizing Weights":
+                st.write("In this section, you can explore the weights of the neural network to understand how it makes predictions.")
+                add_vertical_space(2)
+
+                st.header("Visualizing Weights")
+                st.write("Let's take a closer look at the weights of the neural network model.")
+                # You can add code for visualizing weights here.
+                st.image("images/weight_visualization.png", caption="Weight Visualization", use_column_width=True)
+                st.write("The weight visualization provides insights into how the network learns and makes predictions. You can see the importance of different features and how they affect the final output.")
+                st.write("Hover over the weights to see more details.")
+
+                st.write("Feel free to explore and learn from the weight visualization of the neural network.")
+
+        
         if app_mode == "Neural Network model":
                                                                                     
             # Add content to the "Build Neural Network with Pytorch" section
@@ -534,6 +673,74 @@ def main():
                 #plot_example(X_test[error_mask], y_pred[error_mask])
 
 
+
+        if app_mode == "CNN and MNIST":
+            st.title("Convolutional Neural Networks and MNIST Image Dataset")
+            add_vertical_space(2)
+
+            st.sidebar.subheader("Navigation")
+            cnn_menu = ["Parameter Selection", "Result Explanation", "Inference"]
+            cnn_app_mode = st.sidebar.selectbox("Menu", cnn_menu)
+
+            if cnn_app_mode == "Parameter Selection":
+                st.write("In this section, you can choose training parameters for your Convolutional Neural Network (CNN) model.")
+                add_vertical_space(2)
+
+                # Training parameter selection for CNN
+                st.header("Parameter Selection")
+                kernel_size = st.slider("Kernel Size", min_value=3, max_value=7, step=2)
+                learning_rate_cnn = st.slider("Learning Rate", min_value=0.001, max_value=0.01, step=0.001)
+                epochs_cnn = st.slider("Epochs", min_value=10, max_value=50, step=10)
+
+                st.write("You can adjust the kernel size, learning rate, and the number of training epochs to influence CNN model training.")
+                st.write("Once you've made your selections, proceed to the 'Result Explanation' page to see how these parameters affect the model.")
+
+                if st.button("Proceed to Result Explanation"):
+                    cnn_app_mode = "Result Explanation"
+
+            if cnn_app_mode == "Result Explanation":
+                st.write("In this section, you will explore the results of the CNN model training based on the chosen parameters.")
+                add_vertical_space(2)
+
+                # Training result explanation for CNN
+                st.header("Result Explanation")
+                st.write("The Convolutional Neural Network (CNN) has been trained using the selected parameters, and now we will delve into the results.")
+                # Confusion matrix and insights
+
+                st.write("A confusion matrix helps us understand how the CNN model performs for different digits.")
+                # You can add your confusion matrix image here using st.image().
+
+                st.write("Hover over each cell to see the model's confidence and see a sampling of top instances from each cell.")
+                st.write("We can also gain insights by visualizing the top samples for each cell, giving us an impression of how the CNN network learns to make predictions.")
+
+                if st.button("Proceed to Inference"):
+                    cnn_app_mode = "Inference"
+
+            if cnn_app_mode == "Inference":
+                st.write("In this section, you can use the trained CNN model to make predictions on new data.")
+                add_vertical_space(2)
+
+                st.header("Inference")
+                st.write("You have two options for making predictions using the CNN model:")
+                st.write("1. Upload an image and run a prediction.")
+                st.write("2. Draw an image and predict the number using the CNN model.")
+                st.write("Choose either the 'Upload Image' or 'Draw Image' option below.")
+                inference_option_cnn = st.radio("Choose an Inference Method", ["Upload Image", "Draw Image"])
+
+                if inference_option_cnn == "Upload Image":
+                    # You can add code for image upload and prediction using the CNN model here.
+                    pass
+                else:
+                    # You can add code for drawing an image and making predictions using the CNN model here.
+                    pass
+
+                st.write("Explore the capabilities of the Convolutional Neural Network (CNN) model and test its performance by using the inference options.")
+
+        # Add additional sections and interactive elements as needed.
+        
+        
+        
+        
         if app_mode == "Convolutional Neural Network model":
 
             # Add content to the "Convolutional Network" section
