@@ -51,7 +51,7 @@ def main():
             add_vertical_space(2)
             st.header("Welcome to our interactive platform to learn machine learning concepts.")
             add_vertical_space(3)
-            app_mode_home = st.sidebar.selectbox('Radio',[1, 2])
+            # app_mode_home = st.sidebar.selectbox('Radio',[1, 2])
             with st.columns([1, 10, 1])[1]:
                 st.image('images/OyGx.gif')
                 add_vertical_space(2)
