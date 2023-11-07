@@ -8,3 +8,4 @@ scikit-learn
 numpy
 streamlit-extras
 bokeh
+streamlit_drawable_canvas
