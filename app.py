@@ -1,6 +1,5 @@
 import streamlit as st
 import pickle
-import cv2
 import torch
 import torch.nn as nn
 import torch.nn.functional as F 
@@ -12,6 +11,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from PIL import Image
+from PIL import Image, ImageFilter
 import requests
 from sklearn.metrics import accuracy_score
 from sklearn.datasets import fetch_openml
@@ -415,10 +415,10 @@ def main():
                     st.code(
                         """
                         # Load an image
-                        image = cv2.imread('image.jpg')
+                        image = Image.open('image.jpg')
 
                         # Apply Gaussian blur
-                        blurred_image = cv2.GaussianBlur(image, (5, 5), 0)
+                        blurred_image = image.filter(ImageFilter.GaussianBlur(radius=5))
                         """
                     )
 
@@ -431,15 +431,13 @@ def main():
                     st.code(
                         """
                         # Load an image
-                        image = cv2.imread('image.jpg')
+                        image = Image.open('image.jpg')
 
-                        # Extract RGB channels
-                        red_channel = image[:, :, 0]
-                        green_channel = image[:, :, 1]
-                        blue_channel = image[:, :, 2]
+                        # Separate RGB channels
+                        red_channel, green_channel, blue_channel = image.split()
 
                         # Modify the channels (for example, swapping red and blue channels)
-                        modified_image = cv2.merge([blue_channel, green_channel, red_channel])
+                        modified_image = Image.merge("RGB", (blue_channel, green_channel, red_channel))
                         """
                     )
 
@@ -786,7 +784,6 @@ def main():
            
 
                   
-
         # Hands-on Examples page
         if app_mode == "Hands-on Examples 🔏":
             st.title("Hands-on Examples")
