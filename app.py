@@ -34,19 +34,12 @@ from torch.utils.data import DataLoader
 
 
 
-# Preprocessng data 
-#mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
-#X = mnist.data.astype('float32')
-#y = mnist.target.astype('int64')
-#X /= 255.0
-
-
 # Main Application
 def main():
         # Create the app
         #st.title('Vizuara AI Labs - Handwritten Text Classification')
         st.sidebar.title('Navigation')
-        menu = ["Home","Machine Learning Basics", "Neural Networks","Convolutional Neural Networks", "Dataset","Image Training", "Neural Networks and MNIST", "Neural Networks model", "CNN and MNIST","Convolutional Neural Network model"]
+        menu = ["Home","Machine Learning Basics", "Neural Networks","Convolutional Neural Networks", "Dataset","Image Training", "Neural Networks and MNIST", "Neural Networks model", "CNN and MNIST","Convolutional Neural Network model", "Hands-on Examples"]
         app_mode = st.sidebar.selectbox("Menu",menu)
 
         
@@ -464,33 +457,39 @@ def main():
 
 
         if app_mode == "Image Training":
+            
+            mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
+            X = mnist.data.astype('float32')
+            y = mnist.target.astype('int64')
+            X /= 255.0
+           
             # Print a selection of training images and their labels
-            # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+            
             st.subheader('Sample Training Images and Labels')
             st.write('Here are some example images from the MNIST dataset')
 
             # Add content to the "Loading Data" section
             st.header('Loading Data')
             
-            # def plot_example(X, y):
-            #     """Plot the first 100 images in a 10x10 grid."""
-            #     plt.figure(figsize=(28, 28))  # Set figure size to be larger (you can adjust as needed)
+            def plot_example(X, y):
+                """Plot the first 100 images in a 10x10 grid."""
+                plt.figure(figsize=(28, 28))  # Set figure size to be larger (you can adjust as needed)
 
-            #     for i in range(10):  # For 10 rows
-            #         for j in range(10):  # For 10 columns
-            #             index = i * 10 + j
-            #             plt.subplot(10, 10, index + 1)  # 10 rows, 10 columns, current index
-            #             plt.imshow(X[index].reshape(28, 28))  # Display the image
-            #             plt.xticks([])  # Remove x-ticks
-            #             plt.yticks([])  # Remove y-ticks
-            #             plt.title(y[index], fontsize=8)  # Display the label as title with reduced font size
+                for i in range(10):  # For 10 rows
+                    for j in range(10):  # For 10 columns
+                        index = i * 10 + j
+                        plt.subplot(10, 10, index + 1)  # 10 rows, 10 columns, current index
+                        plt.imshow(X[index].reshape(28, 28))  # Display the image
+                        plt.xticks([])  # Remove x-ticks
+                        plt.yticks([])  # Remove y-ticks
+                        plt.title(y[index], fontsize=8)  # Display the label as title with reduced font size
 
-            #     plt.subplots_adjust(wspace=0.5, hspace=0.5)  # Adjust spacing (you can modify as needed)
-            #     plt.tight_layout()  # Adjust the spacing between plots for better visualization
-            #     #plt.show()  # Display the entire grid
-            #     st.image
-
-            # plot_example(X_train, y_train)
+                plt.subplots_adjust(wspace=0.5, hspace=0.5)  # Adjust spacing (you can modify as needed)
+                plt.tight_layout()  # Adjust the spacing between plots for better visualization
+                #plt.show()  # Display the entire grid
+                st.image
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+            plot_example(X_train, y_train)
 
     
         if app_mode == "Neural Networks and MNIST":
@@ -634,7 +633,14 @@ def main():
 
         
         if app_mode == "Neural Network model":
-                                                                                    
+
+
+            #Preprocessng data 
+            mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
+            X = mnist.data.astype('float32')
+            y = mnist.target.astype('int64')
+            X /= 255.0
+                                                                      
             # Add content to the "Build Neural Network with Pytorch" section
             st.header("Build Neural Network with Pytorch")
             device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -746,8 +752,15 @@ def main():
             # Add content to the "Convolutional Network" section
             st.header("Convolutional Network")
 
+
+            #Preprocessng data 
+            mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
+            X = mnist.data.astype('float32')
+            y = mnist.target.astype('int64')
+            X /= 255.0
+
             XCnn = X.reshape(-1, 1, 28, 28)
-            #XCnn_train, XCnn_test, y_train, y_test = train_test_split(XCnn, y, test_size=0.25, random_state=42)
+            XCnn_train, XCnn_test, y_train, y_test = train_test_split(XCnn, y, test_size=0.25, random_state=42)
 
             # Interactive Features
 
@@ -780,7 +793,7 @@ def main():
 
                   
 
-            # Hands-on Examples page
+        # Hands-on Examples page
         if app_mode == "Hands-on Examples":
             st.title("Hands-on Examples")
                 
