@@ -30,23 +30,17 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 
-
-
-
-
 # Main Application
 def main():
         # Create the app
         #st.title('Vizuara AI Labs - Handwritten Text Classification')
-        st.sidebar.title('Navigation')
-        menu = ["Home","Machine Learning Basics", "Neural Networks","Convolutional Neural Networks", "Dataset","Image Training", "Neural Networks and MNIST", "Neural Networks model", "CNN and MNIST","Convolutional Neural Network model", "Hands-on Examples"]
+        st.sidebar.title('Navigation 😀 ')
+        menu = ["Home 🏠","Machine Learning Basics 📖", "Neural Networks 🧠","Convolutional Neural Networks 🤔", "Dataset 📚","Image Training 📷", "Neural Networks and MNIST 🔢", "Neural Networks model 🖥 ", "CNN and MNIST 🧩","Convolutional Neural Network model 📉", "Hands-on Examples 🔏"]
         app_mode = st.sidebar.selectbox("Menu",menu)
 
         
-        
-
         # Home page
-        if app_mode == "Home":
+        if app_mode == "Home 🏠":
             st.title("ML and NLP Interactive Learning Platform")
             add_vertical_space(2)
             st.header("Welcome to our interactive platform to learn machine learning concepts.")
@@ -58,7 +52,7 @@ def main():
             st.write("Let us explore what we can learn today. Go to the navigation bar and start learning!!")
             
 
-        if app_mode == "Machine Learning Basics":
+        if app_mode == "Machine Learning Basics 📖":
             st.title("Machine Learning !!!")
                     
                 # Add content for the machine learning basics page
@@ -82,7 +76,7 @@ def main():
             for aspect in aspects:
                 st.markdown(f"- {aspect}", unsafe_allow_html=True)
         
-        if app_mode == "Neural Networks":
+        if app_mode == "Neural Networks 🧠":
             st.title("Let's explore Neural Networks !!")
             add_vertical_space(2)
             # Introduction to neural networks
@@ -186,7 +180,7 @@ def main():
 
 
         # CNN page
-        if app_mode == "Convolutional Neural Networks":
+        if app_mode == "Convolutional Neural Networks 🤔":
             st.title("Let's Explore Convolutional Neural Networks (CNNs)")
 
             # Introduction to CNNs
@@ -242,7 +236,7 @@ def main():
 
           
        
-        if app_mode == "Dataset":
+        if app_mode == "Dataset 📚":
             # Page Title
             st.title("Understanding Datasets in Neural Networks")
 
@@ -456,7 +450,7 @@ def main():
 
 
 
-        if app_mode == "Image Training":
+        if app_mode == "Image Training 📷":
             
             mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
             X = mnist.data.astype('float32')
@@ -492,7 +486,7 @@ def main():
             plot_example(X_train, y_train)
 
     
-        if app_mode == "Neural Networks and MNIST":
+        if app_mode == "Neural Networks and MNIST 🔢":
             st.title("Neural Networks and MNIST Image Dataset")
             add_vertical_space(2)
 
@@ -632,7 +626,7 @@ def main():
                 st.write("Feel free to explore and learn from the weight visualization of the neural network.")
 
         
-        if app_mode == "Neural Network model":
+        if app_mode == "Neural Network model 🖥":
 
 
             #Preprocessng data 
@@ -680,7 +674,7 @@ def main():
 
 
 
-        if app_mode == "CNN and MNIST":
+        if app_mode == "CNN and MNIST 🧩":
             st.title("Convolutional Neural Networks and MNIST Image Dataset")
             add_vertical_space(2)
 
@@ -747,7 +741,7 @@ def main():
         
         
         
-        if app_mode == "Convolutional Neural Network model":
+        if app_mode == "Convolutional Neural Network model 📉":
 
       
             st.header("Convolutional Network")
@@ -794,7 +788,7 @@ def main():
                   
 
         # Hands-on Examples page
-        if app_mode == "Hands-on Examples":
+        if app_mode == "Hands-on Examples 🔏":
             st.title("Hands-on Examples")
                 
                
