@@ -29,8 +29,8 @@ from torchvision import datasets
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from digit_recogniser import DigitRecognizer
-from manim_ml import *
-from manim_ml import Convolutional2DLayer, FeedForwardLayer, neural_network
+#from manim import *
+#from manim import Convolutional2DLayer, FeedForwardLayer, NeuralNetwork
 
 
 net = None
