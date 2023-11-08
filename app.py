@@ -519,20 +519,20 @@ def main():
                 
                 train_test_split_ratio = st.slider("Train-Test Split Ratio", min_value=0.1, max_value=0.9, step=0.1)
                 #hidden_dimensions = st.slider("Hidden Dimensions", min_value=16, max_value=256, step=16)
-                epochs = st.slider("Epochs", min_value=1, max_value=20, step=1)
-                learning_rate = st.slider("Learning Rate", min_value=0.001, max_value=0.1, step=0.01)
+                epochs_cnn = st.slider("Epochs", min_value=1, max_value=20, step=1)
+                learning_rate_cnn = st.slider("Learning Rate", min_value=0.001, max_value=0.1, step=0.01)
 
-                st.write("You can adjust the hidden layer dimensions, the number of training epochs, and the learning rate to influence model training.")
+                #st.write("You can adjust the hidden layer dimensions, the number of training epochs, and the learning rate to influence model training.")
                     # Define a simple Pytorch model
                 
                 # Create a button to train the model
-
+                model = ClassifierModule(mnist_dim, hidden_dim, output_dim)
+                    # Split the dataset into training and testing sets
+                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1 - train_test_split_ratio, random_state=42)
+                    
                 if st.button("Train model"):
                     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-                    model = ClassifierModule(mnist_dim, hidden_dim, output_dim)
-                    # Split the dataset into training and testing sets
-                    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1 - train_test_split_ratio, random_state=42)
                     
                     # Create a NeuralNetClassifier
                     net = NeuralNetClassifier(
