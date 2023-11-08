@@ -675,13 +675,6 @@ def main():
 
 
         if app_mode == "CNN and MNIST 🧩":
-
-            cnn = None
-
-            # Initialize session state
-            if 'cnn_app_mode' not in st.session_state:
-                st.session_state.cnn_app_mode = "Load Dataset"
-
             st.title("Convolutional Neural Networks and MNIST Image Dataset")
             add_vertical_space(2)
 
