@@ -332,10 +332,12 @@ def main():
 
             if page == "Explore MNIST":
                 st.write("This is the page for exploring MNIST.")
+
                 # Add content for exploring MNIST
                 st.title("MNIST Dataset")
                 st.write("The MNIST dataset is a collection of handwritten digits widely used in machine learning.")
                 
+                add_vertical_space
                 st.write("It contains 28x28 grayscale images of digits from 0 to 9. Let's explore some sample images:")
                 st.image("images/MNIST-sample.png")
 
@@ -485,7 +487,7 @@ def main():
             nn_menu = ["Load Dataset", "Training Parameters", "Result Explanation", "Inference", "Visualizing Weights"]
             nn_app_mode = st.sidebar.selectbox("Menu", nn_menu)
 
-            if nn_app_mode not in st.session_state:
+            if 'nn_app_mode' not in st.session_state:
                 st.session_state.nn_app_mode = "Load Dataset"
 
             global net
@@ -508,8 +510,7 @@ def main():
 
                     st.session_state.nn_app_mode = "Training Parameters"
 
-                    
-                    
+                                        
             if st.session_state.nn_app_mode == "Training Parameters":
                 st.write("In this section, you can choose training parameters for your neural network model.")
                 add_vertical_space(2)
@@ -675,94 +676,103 @@ def main():
 
 
         if app_mode == "CNN and MNIST 🧩":
-            st.title("Convolutional Neural Networks and MNIST Image Dataset")
-            add_vertical_space(2)
+
+            st.write(f"app_mode: {app_mode}")
 
             st.sidebar.subheader("Navigation")
-            cnn_menu = ["Parameter Selection", "Result Explanation", "Inference"]
-            st.session_state.cnn_app_mode = st.sidebar.selectbox("Menu", cnn_menu)
+            cnn_menu = ["Load Dataset", "Training Parameters", "Result Explanation", "Inference", "Visualizing Weights"]
+            cnn_app_mode = st.sidebar.selectbox("Menu", cnn_menu)
+
+            st.write(f"cnn_app_mode: {cnn_app_mode}")
+
+            if 'cnn_app_mode' not in st.session_state:
+                st.session_state.nn_app_mode = "Load Dataset"
+
+            st.title("Convolutional Neural Networks and MNIST Image Dataset")
+            #add_vertical_space(2)
 
             if st.session_state.cnn_app_mode == "Load Dataset":
                 st.write("Welcome to the CNN and MNIST Image Dataset app. Let's get started by loading the dataset.")
-                if st.button("Load MNIST Dataset"):
-                    mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
-                    X = mnist.data.astype('float32')
-                    y = mnist.target.astype('int64')
-                    X /= 255.0
+                
+            #     if st.button("Load MNIST Dataset"):
+            #         mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
+            #         X = mnist.data.astype('float32')
+            #         y = mnist.target.astype('int64')
+            #         X /= 255.0
 
-                    XCnn = X.reshape(-1, 1, 28, 28)
-                    XCnn_train, XCnn_test, y_train, y_test = train_test_split(XCnn, y, test_size=0.25, random_state=42)
+            #         XCnn = X.reshape(-1, 1, 28, 28)
+            #         XCnn_train, XCnn_test, y_train, y_test = train_test_split(XCnn, y, test_size=0.25, random_state=42)
 
-                    st.success("Dataset loaded successfully!")
+            #         st.success("Dataset loaded successfully!")
 
-                    st.session_state.cnn_app_mode = "Parameter Selection"
+            #         st.session_state.cnn_app_mode = "Parameter Selection"
 
-            if st.session_state.cnn_app_mode == "Parameter Selection":
-                st.write("In this section, you can choose training parameters for your Convolutional Neural Network (CNN) model.")
-                kernel_size = st.slider("Kernel Size", min_value=3, max_value=7, step=2)
-                learning_rate_cnn = st.slider("Learning Rate", min_value=0.001, max_value=0.01, step=0.001)
-                epochs_cnn = st.slider("Epochs", min_value=10, max_value=50, step=10)
+            # if st.session_state.cnn_app_mode == "Parameter Selection":
+            #     st.write("In this section, you can choose training parameters for your Convolutional Neural Network (CNN) model.")
+            #     kernel_size = st.slider("Kernel Size", min_value=3, max_value=7, step=2)
+            #     learning_rate_cnn = st.slider("Learning Rate", min_value=0.001, max_value=0.01, step=0.001)
+            #     epochs_cnn = st.slider("Epochs", min_value=10, max_value=50, step=10)
 
-                st.write("You can adjust the kernel size, learning rate, and the number of training epochs to influence CNN model training.")
-                st.write("Once you've made your selections, proceed to the 'Result Explanation' page to see how these parameters affect the model.")
+            #     st.write("You can adjust the kernel size, learning rate, and the number of training epochs to influence CNN model training.")
+            #     st.write("Once you've made your selections, proceed to the 'Result Explanation' page to see how these parameters affect the model.")
 
-                if st.button("Train Model"):
-                    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+            #     if st.button("Train Model"):
+            #         device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-                    cnn = NeuralNetClassifier(
-                        Cnn,
-                        max_epochs=epochs_cnn,
-                        lr=learning_rate_cnn,
-                        optimizer=torch.optim.Adam
-                    )
+            #         cnn = NeuralNetClassifier(
+            #             Cnn,
+            #             max_epochs=epochs_cnn,
+            #             lr=learning_rate_cnn,
+            #             optimizer=torch.optim.Adam
+            #         )
 
-                    cnn.fit(XCnn_train, y_train)
-                    st.success("Training complete! Proceed to Result Explanation.")
+            #         cnn.fit(XCnn_train, y_train)
+            #         st.success("Training complete! Proceed to Result Explanation.")
 
-                st.session_state.cnn_app_mode = "Result Explanation"
+            #     st.session_state.cnn_app_mode = "Result Explanation"
 
-            if st.session_state.cnn_app_mode == "Result Explanation":
-                    st.write("In this section, you will explore the results of the CNN model training based on the chosen parameters.")
-                    st.header("Result Explanation")
-                    st.header("Prediction")
-                    y_pred_cnn = cnn.predict(XCnn_test)
+            # if st.session_state.cnn_app_mode == "Result Explanation":
+            #         st.write("In this section, you will explore the results of the CNN model training based on the chosen parameters.")
+            #         st.header("Result Explanation")
+            #         st.header("Prediction")
+            #         y_pred_cnn = cnn.predict(XCnn_test)
 
-                    accuracy = accuracy_score(y_test, y_pred_cnn)
-                    st.write(f'Accuracy: {accuracy:.3%}')
-                    #error_mask = y_pred != y_test
-                    #plot_example(X_test[error_mask], y_pred_cnn[error_mask])
-                    cnn_app_mode = "Result Explanation"
-                    st.write("The Convolutional Neural Network (CNN) has been trained using the selected parameters, and now we will delve into the results.")
-                    st.write("A confusion matrix helps us understand how the CNN model performs for different digits.")
+            #         accuracy = accuracy_score(y_test, y_pred_cnn)
+            #         st.write(f'Accuracy: {accuracy:.3%}')
+            #         #error_mask = y_pred != y_test
+            #         #plot_example(X_test[error_mask], y_pred_cnn[error_mask])
+            #         cnn_app_mode = "Result Explanation"
+            #         st.write("The Convolutional Neural Network (CNN) has been trained using the selected parameters, and now we will delve into the results.")
+            #         st.write("A confusion matrix helps us understand how the CNN model performs for different digits.")
 
-                    if st.button("Proceed to Inference"):
-                        st.session_state.cnn_app_mode = "Inference"
+            #         if st.button("Proceed to Inference"):
+            #             st.session_state.cnn_app_mode = "Inference"
 
-            if st.session_state.cnn_app_mode == "Inference":
-                st.write("In this section, you can use the trained CNN model to make predictions on new data.")
-                st.header("Inference")
-                st.write("You have two options for making predictions using the CNN model:")
-                st.write("1. Upload an image and run a prediction.")
-                st.write("2. Draw an image and predict the number using the CNN model.")
-                st.write("Choose either the 'Upload Image' or 'Draw Image' option below.")
-                inference_option_cnn = st.radio("Choose an Inference Method", ["Upload Image", "Draw Image"])
+            # if st.session_state.cnn_app_mode == "Inference":
+            #     st.write("In this section, you can use the trained CNN model to make predictions on new data.")
+            #     st.header("Inference")
+            #     st.write("You have two options for making predictions using the CNN model:")
+            #     st.write("1. Upload an image and run a prediction.")
+            #     st.write("2. Draw an image and predict the number using the CNN model.")
+            #     st.write("Choose either the 'Upload Image' or 'Draw Image' option below.")
+            #     inference_option_cnn = st.radio("Choose an Inference Method", ["Upload Image", "Draw Image"])
 
-                if inference_option_cnn == "Upload Image":
-                    st.write("You can upload an image, and the model will predict the digit.")
-                    uploaded_image = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"])
-                    if uploaded_image is not None:
-                        image = Image.open(uploaded_image)
-                        st.image(image, caption="Uploaded Image", use_column_width=True)
+            #     if inference_option_cnn == "Upload Image":
+            #         st.write("You can upload an image, and the model will predict the digit.")
+            #         uploaded_image = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"])
+            #         if uploaded_image is not None:
+            #             image = Image.open(uploaded_image)
+            #             st.image(image, caption="Uploaded Image", use_column_width=True)
 
-                        # Preprocess the image (replace with actual preprocessing steps)
-                        image = transforms.Compose([transforms.Grayscale(num_output_channels=1),
-                                                    transforms.Resize((28, 28)),
-                                                    transforms.ToTensor()])(image)
-                        image = image.unsqueeze(0)
+            #             # Preprocess the image (replace with actual preprocessing steps)
+            #             image = transforms.Compose([transforms.Grayscale(num_output_channels=1),
+            #                                         transforms.Resize((28, 28)),
+            #                                         transforms.ToTensor()])(image)
+            #             image = image.unsqueeze(0)
 
-                        # Make predictions using the CNN model
-                        prediction = cnn.predict(image)
-                        st.write(f"Predicted Digit: {prediction[0]}")                       
+            #             # Make predictions using the CNN model
+            #             prediction = cnn.predict(image)
+            #             st.write(f"Predicted Digit: {prediction[0]}")                       
         
       
         # Hands-on Examples page

@@ -1,8 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F 
-from model_nn import ClassifierModule
-from model_cnn import Cnn
 from torchvision import transforms
 from torchvision import datasets
 import torch.optim as optim

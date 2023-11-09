@@ -21,3 +21,27 @@ class ClassifierModule(nn.Module):
                     X = self.dropout(X)
                     X = F.softmax(self.output(X), dim=-1)
                     return X
+                
+
+            #model = ClassifierModule()
+
+#if __name__ == "__main__":
+        
+    #transform = transforms.Compose([transforms.Grayscale(num_output_channels=1), transforms.Resize((28, 28)), transforms.ToTensor()])
+
+    # Create a custom dataset using this transform
+    #mnist_dataset = datasets.MNIST(root='./data', train=True, transform=transform, download=True)
+
+    # Define a simple feedforward neural network for digit recognition
+
+
+
+    #criterion = nn.CrossEntropyLoss()
+    #optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+    # Load data into DataLoader
+    #train_loader = DataLoader(mnist_dataset, batch_size=32, shuffle=True)
+
+    # Training loop
+    
+   # torch.save(model.state_dict(), 'digit_recognizer.pth')
