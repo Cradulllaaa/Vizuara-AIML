@@ -1,5 +1,6 @@
 import streamlit as st
 import pickle
+import cv2
 import torch
 import torch.nn as nn
 import torch.nn.functional as F 
@@ -42,7 +43,13 @@ def main():
         menu = ["Home 🏠","Machine Learning Basics 📖", "Neural Networks 🧠","Convolutional Neural Networks 🤔", "Dataset 📚", "Neural Networks and MNIST 🔢", "CNN and MNIST 📉", "Hands-on Examples 🔏"]
         app_mode = st.sidebar.selectbox("Menu",menu)
 
-        
+        # Function to sharpen an image
+        def sharpen_image(image):
+            kernel = np.array([[-1, -1, -1],
+                            [-1, 9, -1],
+                            [-1, -1, -1]])
+            sharpened = cv2.filter2D(image, -1, kernel)
+            return sharpened
         # Home page
         if app_mode == "Home 🏠":
             st.title("ML and NLP Interactive Learning Platform")
@@ -68,7 +75,12 @@ def main():
             st.write("Machine learning is a subfield of artificial intelligence that focuses on creating algorithms and models that enable computers to learn from data. It involves building systems that can automatically improve their performance on a specific task with experience, without being explicitly programmed.")
             st.write(" Machine learning is used in a wide range of applications, including image recognition, natural language processing, recommendation systems, and more.")
             with st.columns([1, 5, 1])[1]:
-                st.image('images/ML_basics.png', use_column_width=True)
+                
+                image = cv2.imread('images/ML_basics.png')
+                sharpened_image = sharpen_image(image)
+                
+                #image('images/ML_basics.png', use_column_width=True)
+                st.image(sharpened_image)
                 add_vertical_space(2)
 
             st.write("Key concepts in machine learning include data preprocessing, model training, and evaluation. Common algorithms include linear regression, decision trees, and neural networks.")
@@ -199,7 +211,9 @@ def main():
             st.markdown("- **Pooling Layer**: Imagine the superhero jotting down important notes from the clues they find.")
             st.markdown("- **Fully Connected Layer**: It's like the superhero putting all the pieces of the puzzle together to solve the mystery.")
 
-            # # Interactive example
+             # Interactive example
+            st.video("https://www.youtube.com/watch?v=K_BHmztRTpA")
+            
             # This changes the resolution of our rendered videos
             # config.pixel_height = 700
             # config.pixel_width = 1900
@@ -289,7 +303,7 @@ def main():
             if page == "Intro":
                 st.write("Welcome to the world of MNIST!")
                 st.write("In this journey, we'll explore the fascinating MNIST dataset, learn how to draw digits, and understand data preprocessing techniques.")
-                st.write("Let's start our adventure!")
+                st.write("Let's start our adventure!Go to the sidebar and Explore MNIST")
 
             if page == "Explore MNIST":
                 st.write("This is the page for exploring MNIST.")
@@ -298,7 +312,7 @@ def main():
                 st.title("MNIST Dataset")
                 st.write("The MNIST dataset is a collection of handwritten digits widely used in machine learning.")
                 
-                add_vertical_space
+                add_vertical_space()
                 st.write("It contains 28x28 grayscale images of digits from 0 to 9. Let's explore some sample images:")
                 st.image("images/MNIST-sample.png")
 
@@ -309,7 +323,8 @@ def main():
                 st.subheader("What Is MNIST?")
                 st.write("MNIST stands for Modified National Institute of Standards and Technology.")
                 st.write("It's a dataset of handwritten digits used to train and test various machine learning models.")
-                st.image("images/mnist-3.png")
+                with st.columns([1, 10, 1])[1]:
+                    st.image("images/mnist-3.png")
                 st.write("Each image is 28x28 pixels, and the dataset contains 60,000 training and 10,000 test images.")
 
                 st.subheader("Why Is MNIST Important?")
@@ -402,7 +417,7 @@ def main():
 
             # Button to navigate back to the introduction
             if page != "Intro":
-                if st.button("Back to Introduction"):
+                if st.button("Go to navigation"):
                     page = "Intro"
 
 
@@ -640,6 +655,27 @@ def main():
                 st.header("Visualizing Weights")
                 st.write("Let's take a closer look at the weights of the neural network model.")
                 # code for visualizing weights here.
+                st.write("Below are some common methods to visualize weights:")
+                st.write("Heatmaps or Grayscale Images: You can create a heatmap or a grayscale image for each layer's weights, where each pixel represents the weight value. Darker areas often indicate stronger weights, and lighter areas represent weaker weights. This method is especially useful for visualizing the weights of fully connected layers.")
+                st.write("Filters in Convolutional Layers: In CNNs, the weights of convolutional layers represent filters that detect specific features in the input data. You can visualize these filters as images. For example, you can use the matplotlib library in Python to display these filter weights as images.")
+                st.code(
+                    '''
+                        # Access the weight tensor of a convolutional layer
+                        conv_layer_weights = model.conv1.weight.data
+
+                        # Assuming a PyTorch model
+                        for i in range(conv_layer_weights.size(0)):
+                            plt.subplot(1, conv_layer_weights.size(0), i + 1)
+                            plt.imshow(conv_layer_weights[i, 0].cpu().numpy(), cmap='viridis')
+                            plt.axis('off')
+                        plt.show()  '''
+                        )
+
+                st.write("Feature Maps: If you want to visualize the activations or feature maps produced by a particular layer in the network, you can do so using techniques like guided backpropagation, deconvolution, or gradient-based methods. These visualizations help you see what features the network activates for specific input data.")
+
+                st.write("Dimensionality Reduction: For high-dimensional weight matrices, you can use dimensionality reduction techniques like Principal Component Analysis (PCA) or t-SNE to reduce the weight matrix to a lower-dimensional space and then visualize the reduced weights.")
+
+                st.write("Pre-trained Models: Many pre-trained models in deep learning frameworks come with tools to visualize their weights. You can load a pre-trained model and use built-in functions to visualize weights.")
                 st.image("images/weight_visualization.png", caption="Weight Visualization", use_column_width=True)
                 st.write("The weight visualization provides insights into how the network learns and makes predictions. You can see the importance of different features and how they affect the final output.")
                 st.write("Hover over the weights to see more details.")
@@ -666,59 +702,59 @@ def main():
             if st.session_state.cnn_app_mode == "Load Dataset":
                 st.write("Welcome to the CNN and MNIST Image Dataset app. Let's get started by loading the dataset.")
                 
-            #     if st.button("Load MNIST Dataset"):
-            #         mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
-            #         X = mnist.data.astype('float32')
-            #         y = mnist.target.astype('int64')
-            #         X /= 255.0
+                if st.button("Load MNIST Dataset"):
+                    mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
+                    X = mnist.data.astype('float32')
+                    y = mnist.target.astype('int64')
+                    X /= 255.0
 
-            #         XCnn = X.reshape(-1, 1, 28, 28)
-            #         XCnn_train, XCnn_test, y_train, y_test = train_test_split(XCnn, y, test_size=0.25, random_state=42)
+                    XCnn = X.reshape(-1, 1, 28, 28)
+                    XCnn_train, XCnn_test, y_train, y_test = train_test_split(XCnn, y, test_size=0.25, random_state=42)
 
-            #         st.success("Dataset loaded successfully!")
+                    st.success("Dataset loaded successfully!")
 
-            #         st.session_state.cnn_app_mode = "Parameter Selection"
+                    st.session_state.cnn_app_mode = "Parameter Selection"
 
-            # if st.session_state.cnn_app_mode == "Parameter Selection":
-            #     st.write("In this section, you can choose training parameters for your Convolutional Neural Network (CNN) model.")
-            #     kernel_size = st.slider("Kernel Size", min_value=3, max_value=7, step=2)
-            #     learning_rate_cnn = st.slider("Learning Rate", min_value=0.001, max_value=0.01, step=0.001)
-            #     epochs_cnn = st.slider("Epochs", min_value=10, max_value=50, step=10)
+            if st.session_state.cnn_app_mode == "Parameter Selection":
+                st.write("In this section, you can choose training parameters for your Convolutional Neural Network (CNN) model.")
+                kernel_size = st.slider("Kernel Size", min_value=3, max_value=7, step=2)
+                learning_rate_cnn = st.slider("Learning Rate", min_value=0.001, max_value=0.01, step=0.001)
+                epochs_cnn = st.slider("Epochs", min_value=10, max_value=50, step=10)
 
-            #     st.write("You can adjust the kernel size, learning rate, and the number of training epochs to influence CNN model training.")
-            #     st.write("Once you've made your selections, proceed to the 'Result Explanation' page to see how these parameters affect the model.")
+                st.write("You can adjust the kernel size, learning rate, and the number of training epochs to influence CNN model training.")
+                st.write("Once you've made your selections, proceed to the 'Result Explanation' page to see how these parameters affect the model.")
 
-            #     if st.button("Train Model"):
-            #         device = 'cuda' if torch.cuda.is_available() else 'cpu'
+                if st.button("Train Model"):
+                    device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-            #         cnn = NeuralNetClassifier(
-            #             Cnn,
-            #             max_epochs=epochs_cnn,
-            #             lr=learning_rate_cnn,
-            #             optimizer=torch.optim.Adam
-            #         )
+                    cnn = NeuralNetClassifier(
+                        Cnn,
+                        max_epochs=epochs_cnn,
+                        lr=learning_rate_cnn,
+                        optimizer=torch.optim.Adam
+                    )
 
-            #         cnn.fit(XCnn_train, y_train)
-            #         st.success("Training complete! Proceed to Result Explanation.")
+                    cnn.fit(XCnn_train, y_train)
+                    st.success("Training complete! Proceed to Result Explanation.")
 
-            #     st.session_state.cnn_app_mode = "Result Explanation"
+                st.session_state.cnn_app_mode = "Result Explanation"
 
-            # if st.session_state.cnn_app_mode == "Result Explanation":
-            #         st.write("In this section, you will explore the results of the CNN model training based on the chosen parameters.")
-            #         st.header("Result Explanation")
-            #         st.header("Prediction")
-            #         y_pred_cnn = cnn.predict(XCnn_test)
+            if st.session_state.cnn_app_mode == "Result Explanation":
+                    st.write("In this section, you will explore the results of the CNN model training based on the chosen parameters.")
+                    st.header("Result Explanation")
+                    st.header("Prediction")
+                    y_pred_cnn = cnn.predict(XCnn_test)
 
-            #         accuracy = accuracy_score(y_test, y_pred_cnn)
-            #         st.write(f'Accuracy: {accuracy:.3%}')
-            #         #error_mask = y_pred != y_test
-            #         #plot_example(X_test[error_mask], y_pred_cnn[error_mask])
-            #         cnn_app_mode = "Result Explanation"
-            #         st.write("The Convolutional Neural Network (CNN) has been trained using the selected parameters, and now we will delve into the results.")
-            #         st.write("A confusion matrix helps us understand how the CNN model performs for different digits.")
+                    accuracy = accuracy_score(y_test, y_pred_cnn)
+                    st.write(f'Accuracy: {accuracy:.3%}')
+                    #error_mask = y_pred != y_test
+                    #plot_example(X_test[error_mask], y_pred_cnn[error_mask])
+                    cnn_app_mode = "Result Explanation"
+                    st.write("The Convolutional Neural Network (CNN) has been trained using the selected parameters, and now we will delve into the results.")
+                    st.write("A confusion matrix helps us understand how the CNN model performs for different digits.")
 
-            #         if st.button("Proceed to Inference"):
-            #             st.session_state.cnn_app_mode = "Inference"
+                    if st.button("Proceed to Inference"):
+                        st.session_state.cnn_app_mode = "Inference"
 
             # if st.session_state.cnn_app_mode == "Inference":
             #     st.write("In this section, you can use the trained CNN model to make predictions on new data.")
