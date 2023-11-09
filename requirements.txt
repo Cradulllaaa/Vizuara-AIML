@@ -9,3 +9,5 @@ numpy
 streamlit-extras
 bokeh
 streamlit_drawable_canvas
+opencv-python
+opencv-python-headless
