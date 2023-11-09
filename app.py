@@ -32,8 +32,8 @@ from digit_recogniser import DigitRecognizer
 #from manim import *
 #from manim import Convolutional2DLayer, FeedForwardLayer, NeuralNetwork
 
-
 net = None
+
 # Main Application
 def main():
         # Create the app
@@ -201,75 +201,36 @@ def main():
 
             # # Interactive example
             # This changes the resolution of our rendered videos
-            config.pixel_height = 700
-            config.pixel_width = 1900
-            config.frame_height = 7.0
-            config.frame_width = 7.0
+            # config.pixel_height = 700
+            # config.pixel_width = 1900
+            # config.frame_height = 7.0
+            # config.frame_width = 7.0
 
-            # Here we define our basic scene
-            class BasicScene(ThreeDScene):
+            # # Here we define our basic scene
+            # class BasicScene(ThreeDScene):
 
-                # The code for generating our scene goes here
-                def construct(self):
-                    # Make the neural network
-                    nn = NeuralNetwork([
-                            Convolutional2DLayer(1, 7, 3, filter_spacing=0.32),
-                            Convolutional2DLayer(3, 5, 3, filter_spacing=0.32),
-                            Convolutional2DLayer(5, 3, 3, filter_spacing=0.18),
-                            FeedForwardLayer(3),
-                            FeedForwardLayer(3),
-                        ],
-                        layer_spacing=0.25,
-                    )
-                    # Center the neural network
-                    nn.move_to(0,0)
-                    self.add(nn)
-                    # Make a forward pass animation
-                    forward_pass = nn.make_forward_pass_animation()
-                    # Play animation
-                    self.play(forward_pass)
+            #     # The code for generating our scene goes here
+            #     def construct(self):
+            #         # Make the neural network
+            #         nn = NeuralNetwork([
+            #                 Convolutional2DLayer(1, 7, 3, filter_spacing=0.32),
+            #                 Convolutional2DLayer(3, 5, 3, filter_spacing=0.32),
+            #                 Convolutional2DLayer(5, 3, 3, filter_spacing=0.18),
+            #                 FeedForwardLayer(3),
+            #                 FeedForwardLayer(3),
+            #             ],
+            #             layer_spacing=0.25,
+            #         )
+            #         # Center the neural network
+            #         nn.move_to(0,0)
+            #         self.add(nn)
+            #         # Make a forward pass animation
+            #         forward_pass = nn.make_forward_pass_animation()
+            #         # Play animation
+            #         self.play(forward_pass)
 
                     
-            # st.write("Welcome to te Superhero Adventure! Join our superhero, Super Detecto, on an exciting mission to uncover hidden patterns in an image. Get ready to be amazed!")
-            # st.subheader("JAdjust Super Detecto's Powers")
-
-            
-            # num_filters = st.slider("Number of Filters", min_value=1, max_value=16, value=8)
-
-            # # impact of filters
-            # st.write(f"With {num_filters} filters, our superhero can examine {num_filters} different parts of an image at once. They become super detectives!")
-
-            # # Create an interactive adventure
-            # if st.button("Start the Superhero Adventure"):
-            #     st.write("Fantastic! You're about to embark on a superhero adventure with Super Detecto. Watch as Super Detecto uses their magic filters to reveal hidden patterns in the image. Get ready for some superhero action!")
-
-            #     # Create a drawing canvas using Bokeh
-            #     plot = figure(plot_width=400, plot_height=400, tools="pan,reset,save,box_zoom")
-            #     plot.background_fill_color = "white"
-            #     plot.outline_line_color = None
-
-            #     # Add an image to the canvas
-            #     img_url = "https://your-image-url.com"  # Replace with your adventure image URL
-            #     plot.image_url(url=[img_url], x=0, y=0, w=1, h=1)
-
-            #     # Define a callback function to process the canvas
-            #     def process_canvas():
-            #         # Implement the logic to process the canvas here
-            #         st.write("Super Detecto is using their magic filters to uncover hidden patterns!")
-
-            #     # Add a button to trigger Super Detecto's magic
-            #     if st.button("Use Super Detecto's Magic"):
-            #         process_canvas()
-
-            #     # Display the Bokeh plot
-            #     st.bokeh_chart(plot)
-
-            # # Explain the adventure
-            # if st.button("What's Happening?"):
-            #     st.write("In this superhero adventure, Super Detecto scans the canvas to find special patterns. Each filter in their magic toolbox looks for something different. It's like a magical treasure hunt!")
-
-          
-       
+                   
         if app_mode == "Dataset 📚":
             # Page Title
             st.title("Understanding Datasets in Neural Networks")
@@ -486,14 +447,15 @@ def main():
             st.sidebar.subheader("Navigation")
             nn_menu = ["Load Dataset", "Training Parameters", "Result Explanation", "Inference", "Visualizing Weights"]
             nn_app_mode = st.sidebar.selectbox("Menu", nn_menu)
-
+            
             if 'nn_app_mode' not in st.session_state:
                 st.session_state.nn_app_mode = "Load Dataset"
 
-            global net
-
+            
             st.title("Neural Networks and MNIST Image Dataset")
             add_vertical_space(2)
+
+            
             
             if st.session_state.nn_app_mode == "Load Dataset":
                 st.write("Welcome to the Neural Networks and MNIST Image Dataset app. Let's get started by loading the dataset.")
@@ -503,12 +465,10 @@ def main():
                     y = mnist.target.astype('int64')
                     X /= 255.0
 
-                    mnist_dim = X.shape[1]
-                    hidden_dim = int(mnist_dim/8)
-                    output_dim = len(np.unique(mnist.target))
-                    st.success("Dataset loaded successfully!")
-
+                   
                     st.session_state.nn_app_mode = "Training Parameters"
+
+                    
 
                                         
             if st.session_state.nn_app_mode == "Training Parameters":
@@ -518,24 +478,25 @@ def main():
                 # Training parameter selection
                 st.header("Training Parameters")
                 
-                train_test_split_ratio = st.slider("Train-Test Split Ratio", min_value=0.1, max_value=0.9, step=0.1)
                 #hidden_dimensions = st.slider("Hidden Dimensions", min_value=16, max_value=256, step=16)
-                epochs_cnn = st.slider("Epochs", min_value=1, max_value=20, step=1)
-                learning_rate_cnn = st.slider("Learning Rate", min_value=0.001, max_value=0.1, step=0.01)
+                train_test_split_ratio = st.slider("Train-Test Split Ratio", min_value=0.1, max_value=0.9, step=0.1)
+                
+                epochs = st.slider("Epochs", min_value=1, max_value=20, step=1)
+                learning_rate= st.slider("Learning Rate", min_value=0.001, max_value=0.1, step=0.01)
 
-                #st.write("You can adjust the hidden layer dimensions, the number of training epochs, and the learning rate to influence model training.")
+                st.write("You can adjust the number of training epochs, and the learning rate to influence model training.")
                     # Define a simple Pytorch model
                 
                 # Create a button to train the model
-                model = ClassifierModule(mnist_dim, hidden_dim, output_dim)
-                    # Split the dataset into training and testing sets
-                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1 - train_test_split_ratio, random_state=42)
-                    
                 if st.button("Train model"):
-                    device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
+                    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+                    # Split the dataset into training and testing sets   
+                   
+                    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1 - train_test_split_ratio, random_state=42)     
                     
                     # Create a NeuralNetClassifier
+                    #model = ClassifierModule()
                     net = NeuralNetClassifier(
                         ClassifierModule,
                         max_epochs=20,
@@ -544,6 +505,11 @@ def main():
                     
                     net.fit(X_train, y_train)
                     st.success("Training Complete")
+
+                    # y_pred = net.predict(X_test)
+                    # accuracy = accuracy_score(y_test, y_pred)
+
+                    # st.write(f'Accuracy: {accuracy:.3%}')                    
                 
                 st.session_state.nn_app_mode = "Result Explanation"
 
@@ -556,10 +522,16 @@ def main():
                     # Add content to the "Prediction" section
                     st.header("Prediction")
 
-                    y_pred = net.predict(X_test)
+                    # net = NeuralNetClassifier(
+                    #     ClassifierModule,
+                    #     max_epochs=20,
+                    #     lr=0.1,
+                    #     device=device)
+                    
+                    # y_pred = net.predict(X_test)
 
-                    accuracy = accuracy_score(y_test, y_pred)
-                    st.write(f'Accuracy: {accuracy:.3%}')
+                    # accuracy = accuracy_score(y_test, y_pred)
+                    # st.write(f'Accuracy: {accuracy:.3%}')
                     #error_mask = y_pred != y_test
                     #plot_example(X_test[error_mask], y_pred[error_mask])
                 
@@ -568,8 +540,8 @@ def main():
                         st.title("Result Explanation (CNN)")
 
                         # Load confusion matrix and top samples images
-                        confusion_matrix_image = Image.open("confusion_matrix_cnn.png")  # Replace with your image path
-                        top_samples_image = Image.open("top_samples_cnn.png")  # Replace with your image path
+                        confusion_matrix_image = Image.open("confusion_matrix_cnn.png")  
+                        top_samples_image = Image.open("top_samples_cnn.png")  
 
                         st.write("In this section, you can explore the results of the CNN model training based on the chosen parameters.")
                         st.header("Confusion Matrix (CNN)")
