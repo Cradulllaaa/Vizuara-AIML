@@ -2,6 +2,7 @@ import streamlit as st
 import pickle
 import cv2
 import torch
+import time
 import torch.nn as nn
 import torch.nn.functional as F 
 from model_nn import ClassifierModule
@@ -14,7 +15,8 @@ import matplotlib.pyplot as plt
 from PIL import Image
 from PIL import Image, ImageFilter
 import requests
-from sklearn.metrics import accuracy_score
+import seaborn as sns
+from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from skorch import NeuralNetClassifier
@@ -50,6 +52,19 @@ def main():
                             [-1, -1, -1]])
             sharpened = cv2.filter2D(image, -1, kernel)
             return sharpened
+        
+        def add_vertical_space(space):
+            for _ in range(space):
+                st.write("")
+
+        # Load dataset with caching
+        #@st.cache_data(hash_funcs={torch.Tensor: lambda x: x.tolist()})
+        def load_mnist_dataset():
+            mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
+            X = mnist.data.astype('float32') / 255.0
+            y = mnist.target.astype('int64')
+            return X, y
+
         # Home page
         if app_mode == "Home 🏠":
             st.title("ML and NLP Interactive Learning Platform")
@@ -455,234 +470,93 @@ def main():
         #         #plt.show()  # Display the entire grid
         #         st.image
             
-
+        
     
         if app_mode == "Neural Networks and MNIST 🔢":
-            
             st.sidebar.subheader("Navigation")
-            nn_menu = ["Load Dataset", "Training Parameters", "Result Explanation", "Inference", "Visualizing Weights"]
-            nn_app_mode = st.sidebar.selectbox("Menu", nn_menu)
-            
+            nn_menu = ["Load Dataset", "Training Parameters", "Result Explanation", "Inference"]
+            nn_app_mode = st.sidebar.selectbox("Menu", nn_menu, key="nn_menu")
+
+            # Initialize variables
+            mnist_loaded = False
+            X_train, X_test, y_train, y_test = None, None, None, None
+            net = None
+
             if 'nn_app_mode' not in st.session_state:
                 st.session_state.nn_app_mode = "Load Dataset"
 
-            
-            st.title("Neural Networks and MNIST Image Dataset")
-            add_vertical_space(2)
-
-            
-            
             if st.session_state.nn_app_mode == "Load Dataset":
+                st.title("Neural Networks and MNIST Image Dataset")
                 st.write("Welcome to the Neural Networks and MNIST Image Dataset app. Let's get started by loading the dataset.")
+                
                 if st.button("Load MNIST Dataset"):
-                    mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
-                    X = mnist.data.astype('float32')
-                    y = mnist.target.astype('int64')
-                    X /= 255.0
+                    with st.spinner('Loading dataset...'):
+                        X, y = load_mnist_dataset()
 
-                   
-                    st.session_state.nn_app_mode = "Training Parameters"
+                        # Split dataset
+                        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+                        mnist_loaded = True
+                        st.session_state.nn_app_mode = "Training Parameters"
 
-                    
 
-                                        
-            if st.session_state.nn_app_mode == "Training Parameters":
+            elif st.session_state.nn_app_mode == "Training Parameters" and mnist_loaded:
+                st.title("Neural Networks and MNIST Image Dataset")
                 st.write("In this section, you can choose training parameters for your neural network model.")
-                add_vertical_space(2)
-
-                # Training parameter selection
                 st.header("Training Parameters")
-                
-                #hidden_dimensions = st.slider("Hidden Dimensions", min_value=16, max_value=256, step=16)
-                train_test_split_ratio = st.slider("Train-Test Split Ratio", min_value=0.1, max_value=0.9, step=0.1)
-                
+
                 epochs = st.slider("Epochs", min_value=1, max_value=20, step=1)
-                learning_rate= st.slider("Learning Rate", min_value=0.001, max_value=0.1, step=0.01)
+                learning_rate = st.slider("Learning Rate", min_value=0.001, max_value=0.1, step=0.01)
 
-                st.write("You can adjust the number of training epochs, and the learning rate to influence model training.")
-                    # Define a simple Pytorch model
-                
-                # Create a button to train the model
+                st.write("You can adjust the number of training epochs and the learning rate to influence model training.")
+
                 if st.button("Train model"):
-
+                    # Train the model
                     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-                    # Split the dataset into training and testing sets   
-                   
-                    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1 - train_test_split_ratio, random_state=42)     
-                    
-                    # Create a NeuralNetClassifier
-                    #model = ClassifierModule()
-                    net = NeuralNetClassifier(
-                        ClassifierModule,
-                        max_epochs=20,
-                        lr=0.1,
-                        device=device)
-                    
-                    net.fit(X_train, y_train)
-                    st.success("Training Complete")
+                    mnist_dim = X_train.shape[1]
+                    hidden_dim = int(mnist_dim / 8)
+                    output_dim = len(np.unique(y_train))
 
-                    # y_pred = net.predict(X_test)
-                    # accuracy = accuracy_score(y_test, y_pred)
+                    net = NeuralNetClassifier(mnist_dim, hidden_dim, output_dim)
+                    criterion = torch.nn.CrossEntropyLoss()
+                    optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 
-                    # st.write(f'Accuracy: {accuracy:.3%}')                    
-                
-                st.session_state.nn_app_mode = "Result Explanation"
+                    for epoch in range(epochs):
+                        net.train()
+                        optimizer.zero_grad()
+                        outputs = net(torch.from_numpy(X_train))
+                        loss = criterion(outputs, torch.from_numpy(y_train))
+                        loss.backward()
+                        optimizer.step()
 
-            if st.session_state.nn_app_mode == "Result Explanation":
-                    st.write("In this section, you will explore the results of the model training based on the chosen parameters.")
-                    add_vertical_space(2)
-                    #nn_model = torch.load("model_nn.py")
-                    # Result Explanation Page
+                    st.session_state.nn_app_mode = "Result Explanation"
 
-                    # Add content to the "Prediction" section
-                    st.header("Prediction")
+            elif st.session_state.nn_app_mode == "Result Explanation" and mnist_loaded:
+                st.title("Neural Networks and MNIST Image Dataset")
+                st.write("In this section, you will explore the results of the model training based on the chosen parameters.")
 
-                    # net = NeuralNetClassifier(
-                    #     ClassifierModule,
-                    #     max_epochs=20,
-                    #     lr=0.1,
-                    #     device=device)
-                    
-                    # y_pred = net.predict(X_test)
+                if st.button("Show Results", key="show_results_btn"):
+                    net.eval()
+                    X_test_tensor = torch.from_numpy(X_test)
+                    y_pred = torch.argmax(net(X_test_tensor), dim=1).numpy()
+                    accuracy = accuracy_score(y_test, y_pred)
 
-                    # accuracy = accuracy_score(y_test, y_pred)
-                    # st.write(f'Accuracy: {accuracy:.3%}')
-                    #error_mask = y_pred != y_test
-                    #plot_example(X_test[error_mask], y_pred[error_mask])
-                
+                    st.write(f'Accuracy: {accuracy:.3%}')
 
-                    def cnn_result_explanation():
-                        st.title("Result Explanation (CNN)")
+                    # Confusion Matrix as an example of result visualization
+                    cm = confusion_matrix(y_test, y_pred)
+                    plt.figure(figsize=(8, 6))
+                    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=np.unique(y_test), yticklabels=np.unique(y_test))
+                    plt.xlabel('Predicted')
+                    plt.ylabel('True')
+                    plt.title('Confusion Matrix')
+                    st.pyplot()
 
-                        # Load confusion matrix and top samples images
-                        confusion_matrix_image = Image.open("confusion_matrix_cnn.png")  
-                        top_samples_image = Image.open("top_samples_cnn.png")  
+                    st.session_state.nn_app_mode = "Inference"
 
-                        st.write("In this section, you can explore the results of the CNN model training based on the chosen parameters.")
-                        st.header("Confusion Matrix (CNN)")
-                        st.image(confusion_matrix_image, caption="Confusion Matrix", use_column_width=True)
-
-                        st.header("Insights from Confusion Matrix")
-                        st.write("Hover over each cell to see the model's confidence and view top instances.")
-                        st.image(top_samples_image, caption="Top Samples", use_column_width=True)
-
-                        st.write("You can also gain insights by visualizing the top samples for each cell, giving you an impression of how the CNN network learns to make predictions.")
-
-
-                    # Training result explanation
-                    st.header("Result Explanation")
-                    st.write("The neural network has been trained using the selected parameters, and now we will delve into the results.")
-                    # Confusion matrix and insights
-
-                    st.write("A confusion matrix helps us understand how the model performs for different digits.")
-                    
-
-                    st.write("Hover over each cell to see the model's confidence and see a sampling of top instances from each cell.")
-                    st.write("We can also gain insights by visualizing the top samples for each cell, giving us an impression of how the network learns to make predictions.")
-
-                    if st.button("Proceed to Inference"):
-                        st.session_state.nn_app_mode = "Inference"
-
-            if st.session_state.nn_app_mode == "Inference":
-                    st.write("In this section, you can use the trained model to make predictions on new data.")
-                    add_vertical_space(2)
-                    # Inference Page
-                    def cnn_inference():
-                        st.title("Inference (CNN)")
-
-                        st.write("In this section, you can use the trained CNN model to make predictions on new data.")
-                        st.header("Choose an Inference Method (CNN)")
-                        inference_method = st.radio("Select an Inference Method", ("Upload an Image", "Draw an Image"))
-
-                        if inference_method == "Upload an Image":
-                            st.write("You can upload an image, and the CNN model will predict the digit.")
-                            uploaded_image = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"])
-                            if uploaded_image is not None:
-                                image = Image.open(uploaded_image)
-                                st.image(image, caption="Uploaded Image", use_column_width=True)
-
-                                # Preprocess the image (replace with actual preprocessing steps)
-                                # Make predictions using the CNN model
-                                # Display prediction results
-                                # Example: 
-                                # prediction = cnn_model(image)  # Replace with actual prediction code
-                                # st.write(f"Predicted Digit: {prediction}")
-
-                        if inference_method == "Draw an Image":
-                            st.write("You can draw an image, and the CNN model will predict the digit.")
-                            
-                            # Add a canvas for drawing
-                            canvas = st_canvas(
-                                fill_color="black",
-                                stroke_width=5,
-                                stroke_color="white",
-                                background_color="white",
-                                width=200,
-                                height=200,
-                                drawing_mode="freedraw",
-                            )
-
-                            if st.button("Recognize Digit (CNN)"):
-                                # Get the drawn image
-                                drawn_image = canvas.image_data
-
-                                # Preprocess the drawn image (replace with actual preprocessing steps)
-                                # Make predictions using the CNN model
-                                # Display prediction results
-                                # Example:
-                                # prediction = cnn_model(drawn_image)  # Replace with actual prediction code
-                                # st.write(f"Predicted Digit: {prediction}")
-                    st.header("Inference")
-                    st.write("You have two options for making predictions:")
-                    st.write("1. Upload an image and run a prediction.")
-                    st.write("2. Draw an image and predict the number using the neural network.")
-                    st.write("Choose either the 'Upload Image' or 'Draw Image' option below.")
-                    inference_option = st.radio("Choose an Inference Method", ["Upload Image", "Draw Image"])
-
-                    if inference_option == "Upload Image":
-                        # code for image upload and prediction here.
-                        pass
-                    else:
-                    
-                        pass
-
-                    st.write("Explore the neural network's capabilities and test its performance by using the inference options.")
-
-            if nn_app_mode == "Visualizing Weights":
-                st.write("In this section, you can explore the weights of the neural network to understand how it makes predictions.")
-                add_vertical_space(2)
-
-                st.header("Visualizing Weights")
-                st.write("Let's take a closer look at the weights of the neural network model.")
-                # code for visualizing weights here.
-                st.write("Below are some common methods to visualize weights:")
-                st.write("Heatmaps or Grayscale Images: You can create a heatmap or a grayscale image for each layer's weights, where each pixel represents the weight value. Darker areas often indicate stronger weights, and lighter areas represent weaker weights. This method is especially useful for visualizing the weights of fully connected layers.")
-                st.write("Filters in Convolutional Layers: In CNNs, the weights of convolutional layers represent filters that detect specific features in the input data. You can visualize these filters as images. For example, you can use the matplotlib library in Python to display these filter weights as images.")
-                st.code(
-                    '''
-                        # Access the weight tensor of a convolutional layer
-                        conv_layer_weights = model.conv1.weight.data
-
-                        # Assuming a PyTorch model
-                        for i in range(conv_layer_weights.size(0)):
-                            plt.subplot(1, conv_layer_weights.size(0), i + 1)
-                            plt.imshow(conv_layer_weights[i, 0].cpu().numpy(), cmap='viridis')
-                            plt.axis('off')
-                        plt.show()  '''
-                        )
-
-                st.write("Feature Maps: If you want to visualize the activations or feature maps produced by a particular layer in the network, you can do so using techniques like guided backpropagation, deconvolution, or gradient-based methods. These visualizations help you see what features the network activates for specific input data.")
-
-                st.write("Dimensionality Reduction: For high-dimensional weight matrices, you can use dimensionality reduction techniques like Principal Component Analysis (PCA) or t-SNE to reduce the weight matrix to a lower-dimensional space and then visualize the reduced weights.")
-
-                st.write("Pre-trained Models: Many pre-trained models in deep learning frameworks come with tools to visualize their weights. You can load a pre-trained model and use built-in functions to visualize weights.")
-                st.image("images/weight_visualization.png", caption="Weight Visualization", use_column_width=True)
-                st.write("The weight visualization provides insights into how the network learns and makes predictions. You can see the importance of different features and how they affect the final output.")
-                st.write("Hover over the weights to see more details.")
-
-                st.write("Feel free to explore and learn from the weight visualization of the neural network.")
-
-
+            elif st.session_state.nn_app_mode == "Inference" and mnist_loaded:
+                st.title("Neural Networks and MNIST Image Dataset")
+                st.write("In this section, you can use the trained model to make predictions on new data.")
+                # Your inference code goes here
         if app_mode == "CNN and MNIST 🧩":
 
             st.write(f"app_mode: {app_mode}")
