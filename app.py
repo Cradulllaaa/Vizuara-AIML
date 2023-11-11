@@ -64,6 +64,15 @@ def main():
             X = mnist.data.astype('float32') / 255.0
             y = mnist.target.astype('int64')
             return X, y
+        
+
+        # Function to preprocess image for inference
+        def preprocess_image(image_path):
+            image = Image.open(image_path).convert("L")  # Convert to grayscale
+            transform = transforms.Compose([transforms.Resize((28, 28)),
+                                            transforms.ToTensor()])
+            image = transform(image)
+            return image
 
         # Home page
         if app_mode == "Home 🏠":
@@ -488,19 +497,43 @@ def main():
             if st.session_state.nn_app_mode == "Load Dataset":
                 st.title("Neural Networks and MNIST Image Dataset")
                 st.write("Welcome to the Neural Networks and MNIST Image Dataset app. Let's get started by loading the dataset.")
-                
-                if st.button("Load MNIST Dataset"):
-                    with st.spinner('Loading dataset...'):
-                        X, y = load_mnist_dataset()
 
-                        # Split dataset
-                        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
-                        mnist_loaded = True
-                        st.session_state.nn_app_mode = "Training Parameters"
+                mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
+                X = mnist.data.astype('float32') / 255.0
+                y = mnist.target.astype('int64')
 
+                # Split dataset
+                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
 
-            elif st.session_state.nn_app_mode == "Training Parameters" and mnist_loaded:
+                st.session_state.mnist_loaded = True
+
+                # Show a 5x5 grid of loaded MNIST images
+                st.subheader('Sample Training Images and Labels')
+                st.write('Here are some example images from the MNIST dataset')
+
+                def plot_example(X, y):
+                    """Plot the first 25 images in a 5x5 grid."""
+                    plt.figure(figsize=(10, 10))  # Set figure size to be larger (you can adjust as needed)
+
+                    for i in range(5):  # For 5 rows
+                        for j in range(5):  # For 5 columns
+                            index = i * 5 + j
+                            plt.subplot(5, 5, index + 1)  # 5 rows, 5 columns, current index
+                            plt.imshow(X[index].reshape(28, 28), cmap='gray')  # Display the image in grayscale
+                            plt.xticks([])  # Remove x-ticks
+                            plt.yticks([])  # Remove y-ticks
+                            plt.title(y[index], fontsize=8)  # Display the label as title with reduced font size
+
+                    plt.subplots_adjust(wspace=0.5, hspace=0.5)  # Adjust spacing (you can modify as needed)
+                    plt.tight_layout()  # Adjust the spacing between plots for better visualization
+                    st.pyplot()  # Display the entire grid
+
+                plot_example(X_train, y_train)
+
+            elif st.session_state.nn_app_mode == "Training Parameters":
                 st.title("Neural Networks and MNIST Image Dataset")
+                st.write("Welcome to the Neural Networks and MNIST Image Dataset app. Let's configure the training parameters.")
+
                 st.write("In this section, you can choose training parameters for your neural network model.")
                 st.header("Training Parameters")
 
@@ -510,53 +543,76 @@ def main():
                 st.write("You can adjust the number of training epochs and the learning rate to influence model training.")
 
                 if st.button("Train model"):
-                    # Train the model
-                    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-                    mnist_dim = X_train.shape[1]
-                    hidden_dim = int(mnist_dim / 8)
-                    output_dim = len(np.unique(y_train))
+                    with st.spinner("Training model..."):
+                        # Train the model
+                        device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-                    net = NeuralNetClassifier(mnist_dim, hidden_dim, output_dim)
-                    criterion = torch.nn.CrossEntropyLoss()
-                    optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
+                        mnist_dim = X_train.shape[1]
+                        hidden_dim = int(mnist_dim / 8)
+                        output_dim = len(set(y_train))
 
-                    for epoch in range(epochs):
-                        net.train()
-                        optimizer.zero_grad()
-                        outputs = net(torch.from_numpy(X_train))
-                        loss = criterion(outputs, torch.from_numpy(y_train))
-                        loss.backward()
-                        optimizer.step()
+                        net = NeuralNetClassifier(mnist_dim, hidden_dim, output_dim)
+                        criterion = torch.nn.CrossEntropyLoss()
+                        optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
+                        device = device
 
-                    st.session_state.nn_app_mode = "Result Explanation"
+                        for epoch in range(epochs):
+                            net.train()
+                            optimizer.zero_grad()
+                            outputs = net(torch.from_numpy(X_train))
+                            loss = criterion(outputs, torch.from_numpy(y_train))
+                            loss.backward()
+                            optimizer.step()
 
-            elif st.session_state.nn_app_mode == "Result Explanation" and mnist_loaded:
-                st.title("Neural Networks and MNIST Image Dataset")
+                        st.session_state.net = net
+
+            elif st.session_state.nn_app_mode == "Result Explanation":
+                st.title("Result Explanation")
                 st.write("In this section, you will explore the results of the model training based on the chosen parameters.")
 
-                if st.button("Show Results", key="show_results_btn"):
-                    net.eval()
-                    X_test_tensor = torch.from_numpy(X_test)
-                    y_pred = torch.argmax(net(X_test_tensor), dim=1).numpy()
-                    accuracy = accuracy_score(y_test, y_pred)
+                if st.session_state.net is not None:
+                    if st.button("Show Results", key="show_results_btn"):
+                        net.eval()
+                        X_test_tensor = torch.from_numpy(X_test)
+                        y_pred = torch.argmax(net(X_test_tensor), dim=1).numpy()
+                        accuracy = accuracy_score(y_test, y_pred)
 
-                    st.write(f'Accuracy: {accuracy:.3%}')
+                        st.write(f'Accuracy: {accuracy:.3%}')
 
-                    # Confusion Matrix as an example of result visualization
-                    cm = confusion_matrix(y_test, y_pred)
-                    plt.figure(figsize=(8, 6))
-                    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=np.unique(y_test), yticklabels=np.unique(y_test))
-                    plt.xlabel('Predicted')
-                    plt.ylabel('True')
-                    plt.title('Confusion Matrix')
-                    st.pyplot()
+                        # Confusion Matrix as an example of result visualization
+                        cm = confusion_matrix(y_test, y_pred)
+                        plt.figure(figsize=(8, 6))
+                        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=np.unique(y_test), yticklabels=np.unique(y_test))
+                        plt.xlabel('Predicted')
+                        plt.ylabel('True')
+                        plt.title('Confusion Matrix')
+                        st.pyplot()
 
-                    st.session_state.nn_app_mode = "Inference"
+                        # Show a 5 x 5 grid of MNIST images that were misclassified
+                        misclassified_indices = np.where(y_pred != y_test)[0][:25]
+                        st.write("Misclassified Images:")
+                        for idx in misclassified_indices:
+                            st.image(X_test[idx].reshape(28, 28), caption=f"True: {y_test[idx]}, Predicted: {y_pred[idx]}")
 
-            elif st.session_state.nn_app_mode == "Inference" and mnist_loaded:
-                st.title("Neural Networks and MNIST Image Dataset")
-                st.write("In this section, you can use the trained model to make predictions on new data.")
-                # Your inference code goes here
+            elif st.session_state.nn_app_mode == "Inference":
+                st.title("Inference")
+                st.write("In this section, you can upload an image for model inference.")
+
+                uploaded_image = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+
+                if uploaded_image is not None:
+                    st.image(uploaded_image, caption="Uploaded Image.", use_column_width=True)
+
+                    # Perform inference on the uploaded image using the trained model
+                    if st.session_state.net is not None:
+                        st.write("Performing Inference:")
+                        image_tensor = preprocess_image(uploaded_image)
+                        image_tensor = image_tensor.unsqueeze(0)  # Add batch dimension
+                        st.session_state.net.eval()
+                        with torch.no_grad():
+                            output = st.session_state.net(image_tensor)
+                        predicted_class = torch.argmax(output).item()
+                        st.write(f"Predicted Class: {predicted_class}")
         if app_mode == "CNN and MNIST 🧩":
 
             st.write(f"app_mode: {app_mode}")
