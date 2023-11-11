@@ -1,6 +1,7 @@
 torch
 streamlit
 pandas
+seaborn
 matplotlib
 torchvision
 skorch
