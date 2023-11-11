@@ -2,6 +2,7 @@ import streamlit as st
 import pickle
 #import cv2
 import torch
+import seaborn as sns
 import time
 import torch.nn as nn
 import torch.nn.functional as F 
@@ -14,7 +15,7 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from PIL import Image
 from PIL import Image, ImageFilter
-import seaborn as sns
+
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
