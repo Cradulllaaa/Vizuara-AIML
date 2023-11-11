@@ -14,7 +14,6 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from PIL import Image
 from PIL import Image, ImageFilter
-import requests
 import seaborn as sns
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.datasets import fetch_openml
@@ -22,27 +21,16 @@ from sklearn.model_selection import train_test_split
 from skorch import NeuralNetClassifier
 from streamlit_extras.add_vertical_space import add_vertical_space
 from streamlit_drawable_canvas import st_canvas
-import base64
-import io
-from bokeh.models import Div
-from bokeh.plotting import figure
-from bokeh.models import Button
-from bokeh.layouts import layout
 from torchvision import datasets
 import torch.optim as optim
-from torch.utils.data import DataLoader
-from digit_recogniser import DigitRecognizer
-#from manim import *
-#from manim import Convolutional2DLayer, FeedForwardLayer, NeuralNetwork
-
-net = None
+from cnn_digit_recogniser import CNNDigitRecognizer
 
 # Main Application
 def main():
         # Create the app
         #st.title('Vizuara AI Labs - Handwritten Text Classification')
         st.sidebar.title('Navigation 😀 ')
-        menu = ["Home 🏠","Machine Learning Basics 📖", "Neural Networks 🧠","Convolutional Neural Networks 🤔", "Dataset 📚", "Neural Networks and MNIST 🔢", "CNN and MNIST 📉", "Hands-on Examples 🔏"]
+        menu = ["Home 🏠","Machine Learning Basics 📖", "Dataset 📚", "Neural Networks 🧠", "Neural Networks and MNIST 🔢", "Convolutional Neural Networks 🤔", "CNN and MNIST 🧩"]
         app_mode = st.sidebar.selectbox("Menu",menu)
 
         # Function to sharpen an image
@@ -59,11 +47,11 @@ def main():
 
         # Load dataset with caching
         #@st.cache_data(hash_funcs={torch.Tensor: lambda x: x.tolist()})
-        def load_mnist_dataset():
-            mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
-            X = mnist.data.astype('float32') / 255.0
-            y = mnist.target.astype('int64')
-            return X, y
+        # def load_mnist_dataset():
+        #     mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
+        #     X = mnist.data.astype('float32') / 255.0
+        #     y = mnist.target.astype('int64')
+        #     return X, y
         
 
         # Function to preprocess image for inference
@@ -102,8 +90,8 @@ def main():
                 st.image('images/OyGx.gif')
                 add_vertical_space(2)
             st.write("Let us explore what we can learn today. Go to the navigation bar and start learning!!")
-            
-
+         
+        # ML Basics Page
         if app_mode == "Machine Learning Basics 📖":
             st.title("Machine Learning !!!")
                     
@@ -132,160 +120,8 @@ def main():
                         "<b>Performance</b>: It is defined as the capacity of any machine to resolve any machine learning task or problem and provide the best outcome for the same. However, performance is dependent on the type of machine learning problems."]
             for aspect in aspects:
                 st.markdown(f"- {aspect}", unsafe_allow_html=True)
-        
-        if app_mode == "Neural Networks 🧠":
-            st.title("Let's explore Neural Networks !!")
-            add_vertical_space(2)
-            # Introduction to neural networks
-            st.write("Neural networks are like virtual brains that help computers learn and make decisions, just like how you learn from experiences. They are designed to mimic the functioning of the human brain, consisting of interconnected layers of neurons. Neural networks are a fundamental concept in machine learning and deep learning. Neural networks are used for various tasks, including image recognition, natural language processing, and more. ")
-            add_vertical_space(2)
 
-            # Brain analogy
-            st.write("Imagine a neural network as a group of connected cells. Each cell can understand something different, like shapes or colors. When we show the network a picture, these cells work together to recognize what's in the picture.")
-            # Feedforward neural network diagram
-            st.image("images/feedforward_neural_network.png", caption="Feedforward Neural Network")
-
-            # Layers and neurons
-            st.write("Neural networks are organized in layers, and each layer contains many cells, like in our brain. There are three types of layers:")
-            st.markdown("- Input Layer: It takes information from the outside world, like a picture.")
-            st.markdown("- Hidden Layers: These layers think and make decisions based on the input.")
-            st.markdown("- Output Layer: It gives the final answer, like 'It's a cat!'")
-            
-            add_vertical_space(2)
-            # Activation functions
-            st.write("Activation functions help cells in the network to decide how much they should 'fire.' The most common activation functions are like on-off switches.")
-            st.markdown("- ReLU: It's like turning on a light switch when things are bright enough.")
-            st.markdown("- Sigmoid: It's like a dimmer switch that can be turned up or down.")
-            st.image("images/sigmoid.png")
-            st.markdown("- Tanh: It's like a thermometer showing how hot or cold something is.")
-
-            add_vertical_space(2)
-            # Loss functions
-            st.write("Loss functions help the network know how well it's doing. If it makes a mistake, the loss goes up. The network tries to lower the loss. Two common loss functions are:")
-            st.markdown("- Mean Squared Error: It checks how far the network's answer is from the right answer.")
-            st.markdown("- Cross-Entropy Loss: It's like counting how surprised the network is about the answer.")
-
-            add_vertical_space(2)
-            
-            # Training and backpropagation
-            st.image("images/backpropogation-nn.png")
-            st.write("Neural networks learn from their mistakes. They keep trying to make fewer mistakes. This is called training. When they make a mistake, they use backpropagation to figure out how to fix it.")
-            
-            add_vertical_space(2)
-
-            st.write("Here's a simple example of a feedforward neural network in code:")
-            st.code("""
-            import torch
-            import torch.nn as nn
-
-            class NeuralNetwork(nn.Module):
-                def __init__(self):
-                    super(NeuralNetwork, self).__init()
-                    self.fc1 = nn.Linear(in_features=784, out_features=128)
-                    self.fc2 = nn.Linear(in_features=128, out_features=10)
-
-                def forward(self, x):
-                    x = torch.relu(self.fc1(x))
-                    x = self.fc2(x)
-                    return x
-            """, language="python")
-
-            # Interactive feedforward neural network example
-            st.subheader("Interactive Feedforward Neural Network Example")
-
-            # Allow kids to adjust the number of hidden neurons
-            num_hidden_neurons = st.slider("Number of Hidden Neurons", min_value=1, max_value=256, value=64)
-
-            # Create a simple feedforward neural network
-            class NeuralNetwork(nn.Module):
-                def __init__(self, input_dim=784, hidden_dim=num_hidden_neurons, output_dim=10):
-                    super(NeuralNetwork, self).__init()
-                    self.fc1 = nn.Linear(input_dim, hidden_dim)
-                    self.fc2 = nn.Linear(hidden_dim, output_dim)
-
-                def forward(self, x):
-                    x = torch.relu(self.fc1(x))
-                    x = self.fc2(x)
-                    return x
-                
-            # Explanation
-            st.markdown("You can adjust the number of hidden neurons in the network. Think of these neurons as tiny helpers that work together to understand things. More neurons can help the network learn complex stuff.")
-
-            # Create a simple image to visually represent the neural network
-            image_url = "images/mlp_mnist.png" 
-            
-            st.write("Let's explore the neural network:")
-            st.write(f"- It has an Input Layer with 784 neurons, which is like the network's eyes.")
-            st.write(f"- You can adjust the Hidden Layer to have {num_hidden_neurons} neurons. It's like the network's brain.")
-            st.write(f"- The Output Layer has 10 neurons, which is like the network's mouth.")
-            
-            st.image(image_url, caption="Neural Network Diagram")
-
-            # Interactive description
-            st.write("Imagine this network is learning to recognize handwritten numbers. When you adjust the number of hidden neurons, you're making its brain more or less complex.")
-            st.write(f"With {num_hidden_neurons} neurons, it's getting smarter and can recognize more details in the numbers.")
-
-            # impact of the network
-            if num_hidden_neurons >= 128:
-                st.write("Look how well it's doing with many neurons! It's like a super-smart computer.")
-            else:
-                st.write("With fewer neurons, it's still learning, but it might make some mistakes. Just like when you're learning something new!")
-
-            st.image("images/mnist_layer.png")
-            # Explanation
-            st.markdown("The image above shows how the network looks. It has an input layer (receiving data), a hidden layer (thinking and making decisions), and an output layer (giving the final answer). The hidden layer can have as many neurons as you decide.")
-
-
-        # CNN page
-        if app_mode == "Convolutional Neural Networks 🤔":
-            st.title("Let's Explore Convolutional Neural Networks (CNNs)")
-
-            # Introduction to CNNs
-            st.write("Convolutional Neural Networks (CNNs) are like superheroes for understanding images and patterns. They can spot objects in photos and videos, just like how you find hidden treasures!")
-
-            # Superhero analogy
-            st.write("Think of a CNN as a superhero with special glasses. These glasses help them see tiny details in pictures. They're amazing at finding clues!")
-
-            # Layers and filters
-            st.write("A CNN is made up of special layers and filters. Let's uncover their powers:")
-            st.markdown("- **Convolutional Layer**: These are like the superhero's magnifying glasses. They zoom in on small parts of a picture to uncover secrets.")
-            st.markdown("- **Pooling Layer**: Imagine the superhero jotting down important notes from the clues they find.")
-            st.markdown("- **Fully Connected Layer**: It's like the superhero putting all the pieces of the puzzle together to solve the mystery.")
-
-             # Interactive example
-            st.video("https://www.youtube.com/watch?v=K_BHmztRTpA")
-            
-            # This changes the resolution of our rendered videos
-            # config.pixel_height = 700
-            # config.pixel_width = 1900
-            # config.frame_height = 7.0
-            # config.frame_width = 7.0
-
-            # # Here we define our basic scene
-            # class BasicScene(ThreeDScene):
-
-            #     # The code for generating our scene goes here
-            #     def construct(self):
-            #         # Make the neural network
-            #         nn = NeuralNetwork([
-            #                 Convolutional2DLayer(1, 7, 3, filter_spacing=0.32),
-            #                 Convolutional2DLayer(3, 5, 3, filter_spacing=0.32),
-            #                 Convolutional2DLayer(5, 3, 3, filter_spacing=0.18),
-            #                 FeedForwardLayer(3),
-            #                 FeedForwardLayer(3),
-            #             ],
-            #             layer_spacing=0.25,
-            #         )
-            #         # Center the neural network
-            #         nn.move_to(0,0)
-            #         self.add(nn)
-            #         # Make a forward pass animation
-            #         forward_pass = nn.make_forward_pass_animation()
-            #         # Play animation
-            #         self.play(forward_pass)
-
-                    
-                   
+        # MNIST Dataset
         if app_mode == "Dataset 📚":
             # Page Title
             st.title("Understanding Datasets in Neural Networks")
@@ -307,11 +143,11 @@ def main():
             # Image
             st.image("images/datasets.png", caption="Datasets are Like Treasure Chests", use_column_width=True)
 
-            # Interactive Example
-            st.subheader("Imagine You Have a Dataset")
-            st.write("Think of a dataset like a giant collection of pictures, stories, and information. Let's pretend you have a dataset about different animals.")
+            # # Interactive Example
+            # st.subheader("Imagine You Have a Dataset")
+            # st.write("Think of a dataset like a giant collection of pictures, stories, and information. Let's pretend you have a dataset about different animals.")
 
-            st.image("images/animals.png", caption="Your Animal Dataset", use_column_width=True)
+            # st.image("images/animals.png", caption="Your Animal Dataset", use_column_width=True)
             
             # Function to recognize a drawn digit
             def recognize_digit(digit_image, model):
@@ -336,9 +172,9 @@ def main():
             # Main content
             st.title("MNIST Dataset Exploration")
 
-            # Load a pre-trained model 
-            model = DigitRecognizer()
-            model.load_state_dict(torch.load('digit_recognizer.pth'))
+            # Load a pre-trained model
+            model = CNNDigitRecognizer()
+            #model.load_state_dict(torch.load('cnn_digit_recognizer.pth'))
             model.eval()
 
             if page == "Intro":
@@ -353,7 +189,7 @@ def main():
                 st.title("MNIST Dataset")
                 st.write("The MNIST dataset is a collection of handwritten digits widely used in machine learning.")
                 
-                add_vertical_space()
+                add_vertical_space(2)
                 st.write("It contains 28x28 grayscale images of digits from 0 to 9. Let's explore some sample images:")
                 st.image("images/MNIST-sample.png")
 
@@ -460,44 +296,111 @@ def main():
             if page != "Intro":
                 if st.button("Go to navigation"):
                     page = "Intro"
-
-
-
-        # if app_mode == "Image Training 📷":
-            
-        #     mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
-        #     X = mnist.data.astype('float32')
-        #     y = mnist.target.astype('int64')
-        #     X /= 255.0
-           
-        #     # Print a selection of training images and their labels
-            
-        #     st.subheader('Sample Training Images and Labels')
-        #     st.write('Here are some example images from the MNIST dataset')
-
-        #     # Add content to the "Loading Data" section
-        #     st.header('Loading Data')
-            
-        #     def plot_example(X, y):
-        #         """Plot the first 100 images in a 10x10 grid."""
-        #         plt.figure(figsize=(28, 28))  # Set figure size to be larger (you can adjust as needed)
-
-        #         for i in range(10):  # For 10 rows
-        #             for j in range(10):  # For 10 columns
-        #                 index = i * 10 + j
-        #                 plt.subplot(10, 10, index + 1)  # 10 rows, 10 columns, current index
-        #                 plt.imshow(X[index].reshape(28, 28))  # Display the image
-        #                 plt.xticks([])  # Remove x-ticks
-        #                 plt.yticks([])  # Remove y-ticks
-        #                 plt.title(y[index], fontsize=8)  # Display the label as title with reduced font size
-
-        #         plt.subplots_adjust(wspace=0.5, hspace=0.5)  # Adjust spacing (you can modify as needed)
-        #         plt.tight_layout()  # Adjust the spacing between plots for better visualization
-        #         #plt.show()  # Display the entire grid
-        #         st.image
-            
         
-    
+        # NN page
+        if app_mode == "Neural Networks 🧠":
+            st.title("Let's explore Neural Networks !!")
+            add_vertical_space(2)
+            # Introduction to neural networks
+            st.write("Neural networks are like virtual brains that help computers learn and make decisions, just like how you learn from experiences. They are designed to mimic the functioning of the human brain, consisting of interconnected layers of neurons. Neural networks are a fundamental concept in machine learning and deep learning. Neural networks are used for various tasks, including image recognition, natural language processing, and more. ")
+            add_vertical_space(2)
+
+            # Brain analogy
+            st.write("Imagine a neural network as a group of connected cells. Each cell can understand something different, like shapes or colors. When we show the network a picture, these cells work together to recognize what's in the picture.")
+            # Feedforward neural network diagram
+            st.image("images/feedforward_neural_network.png", caption="Feedforward Neural Network")
+
+            # Layers and neurons
+            st.write("Neural networks are organized in layers, and each layer contains many cells, like in our brain. There are three types of layers:")
+            st.markdown("- Input Layer: It takes information from the outside world, like a picture.")
+            st.markdown("- Hidden Layers: These layers think and make decisions based on the input.")
+            st.markdown("- Output Layer: It gives the final answer, like 'It's a cat!'")
+            
+            add_vertical_space(2)
+            # Activation functions
+            st.write("Activation functions help cells in the network to decide how much they should 'fire.' The most common activation functions are like on-off switches.")
+            st.markdown("- ReLU: It's like turning on a light switch when things are bright enough.")
+            st.markdown("- Sigmoid: It's like a dimmer switch that can be turned up or down.")
+            st.image("images/sigmoid.png")
+            st.markdown("- Tanh: It's like a thermometer showing how hot or cold something is.")
+
+            add_vertical_space(2)
+            # Loss functions
+            st.write("Loss functions help the network know how well it's doing. If it makes a mistake, the loss goes up. The network tries to lower the loss. Two common loss functions are:")
+            st.markdown("- Mean Squared Error: It checks how far the network's answer is from the right answer.")
+            st.markdown("- Cross-Entropy Loss: It's like counting how surprised the network is about the answer.")
+
+            add_vertical_space(2)
+            
+            # Training and backpropagation
+            st.image("images/backpropogation-nn.png")
+            st.write("Neural networks learn from their mistakes. They keep trying to make fewer mistakes. This is called training. When they make a mistake, they use backpropagation to figure out how to fix it.")
+            
+            add_vertical_space(2)
+
+            st.write("Here's a simple example of a feedforward neural network in code:")
+            st.code("""
+            import torch
+            import torch.nn as nn
+
+            class NeuralNetwork(nn.Module):
+                def __init__(self):
+                    super(NeuralNetwork, self).__init()
+                    self.fc1 = nn.Linear(in_features=784, out_features=128)
+                    self.fc2 = nn.Linear(in_features=128, out_features=10)
+
+                def forward(self, x):
+                    x = torch.relu(self.fc1(x))
+                    x = self.fc2(x)
+                    return x
+            """, language="python")
+
+            # Interactive feedforward neural network example
+            st.subheader("Interactive Feedforward Neural Network Example")
+
+            # Allow kids to adjust the number of hidden neurons
+            num_hidden_neurons = st.slider("Number of Hidden Neurons", min_value=1, max_value=256, value=64)
+
+            # Create a simple feedforward neural network
+            class NeuralNetwork(nn.Module):
+                def __init__(self, input_dim=784, hidden_dim=num_hidden_neurons, output_dim=10):
+                    super(NeuralNetwork, self).__init()
+                    self.fc1 = nn.Linear(input_dim, hidden_dim)
+                    self.fc2 = nn.Linear(hidden_dim, output_dim)
+
+                def forward(self, x):
+                    x = torch.relu(self.fc1(x))
+                    x = self.fc2(x)
+                    return x
+                
+            # Explanation
+            st.markdown("You can adjust the number of hidden neurons in the network. Think of these neurons as tiny helpers that work together to understand things. More neurons can help the network learn complex stuff.")
+
+            # Create a simple image to visually represent the neural network
+            image_url = "images/mlp_mnist.png" 
+            
+            st.write("Let's explore the neural network:")
+            st.write(f"- It has an Input Layer with 784 neurons, which is like the network's eyes.")
+            st.write(f"- You can adjust the Hidden Layer to have {num_hidden_neurons} neurons. It's like the network's brain.")
+            st.write(f"- The Output Layer has 10 neurons, which is like the network's mouth.")
+            
+            st.image(image_url, caption="Neural Network Diagram")
+
+            # Interactive description
+            st.write("Imagine this network is learning to recognize handwritten numbers. When you adjust the number of hidden neurons, you're making its brain more or less complex.")
+            st.write(f"With {num_hidden_neurons} neurons, it's getting smarter and can recognize more details in the numbers.")
+
+            # impact of the network
+            if num_hidden_neurons >= 128:
+                st.write("Look how well it's doing with many neurons! It's like a super-smart computer.")
+            else:
+                st.write("With fewer neurons, it's still learning, but it might make some mistakes. Just like when you're learning something new!")
+
+            st.image("images/mnist_layer.png")
+            # Explanation
+            st.markdown("The image above shows how the network looks. It has an input layer (receiving data), a hidden layer (thinking and making decisions), and an output layer (giving the final answer). The hidden layer can have as many neurons as you decide.")
+
+        # NN model
         if app_mode == "Neural Networks and MNIST 🔢":
             st.sidebar.subheader("Navigation")
             nn_menu = ["Load Dataset", "Training Parameters", "Result Explanation", "Inference"]
@@ -525,11 +428,11 @@ def main():
 
                 st.session_state.mnist_loaded = True
 
-                # Show a 5x5 grid of loaded MNIST images
-                st.subheader('Sample Training Images and Labels')
-                st.write('Here are some example images from the MNIST dataset')
+                # # Show a 5x5 grid of loaded MNIST images
+                # st.subheader('Sample Training Images and Labels')
+                # st.write('Here are some example images from the MNIST dataset')
 
-                plot_example(X_train, y_train)
+                # plot_example(X_train, y_train)
 
                 # Add Training Parameters section on the same page
                 st.title("Neural Networks and MNIST Image Dataset")
@@ -552,7 +455,7 @@ def main():
                         hidden_dim = int(mnist_dim / 8)
                         output_dim = len(set(y_train))
 
-                        net = NeuralNetClassifier(mnist_dim, hidden_dim, output_dim)
+                        net = NeuralNetClassifier(ClassifierModule(mnist_dim, hidden_dim, output_dim))
                         criterion = torch.nn.CrossEntropyLoss()
                         optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
                         device = device
@@ -574,10 +477,9 @@ def main():
                 if st.session_state.net is not None:
                     if st.button("Show Results", key="show_results_btn"):
                         net.eval()
-                        X_test_tensor = torch.from_numpy(X_test)
-                        y_pred = torch.argmax(net(X_test_tensor), dim=1).numpy()
+                        net.fit(X_train, y_train)
+                        y_pred = net.predict(X_test)
                         accuracy = accuracy_score(y_test, y_pred)
-
                         st.write(f'Accuracy: {accuracy:.3%}')
 
                         # Confusion Matrix as an example of result visualization
@@ -615,114 +517,141 @@ def main():
                         predicted_class = torch.argmax(output).item()
                         st.write(f"Predicted Class: {predicted_class}")
 
+        # CNN page
+        if app_mode == "Convolutional Neural Networks 🤔":
+            st.title("Let's Explore Convolutional Neural Networks (CNNs)")
 
+            # Introduction to CNNs
+            st.write("Convolutional Neural Networks (CNNs) are like superheroes for understanding images and patterns. They can spot objects in photos and videos, just like how you find hidden treasures!")
+
+            # Superhero analogy
+            st.write("Think of a CNN as a superhero with special glasses. These glasses help them see tiny details in pictures. They're amazing at finding clues!")
+
+            # Layers and filters
+            st.write("A CNN is made up of special layers and filters. Let's uncover their powers:")
+            st.markdown("- **Convolutional Layer**: These are like the superhero's magnifying glasses. They zoom in on small parts of a picture to uncover secrets.")
+            st.markdown("- **Pooling Layer**: Imagine the superhero jotting down important notes from the clues they find.")
+            st.markdown("- **Fully Connected Layer**: It's like the superhero putting all the pieces of the puzzle together to solve the mystery.")
+
+             # Interactive example
+            st.video("https://www.youtube.com/watch?v=K_BHmztRTpA")
+
+        # CNN model                 
         if app_mode == "CNN and MNIST 🧩":
-
-            st.write(f"app_mode: {app_mode}")
-
             st.sidebar.subheader("Navigation")
-            cnn_menu = ["Load Dataset", "Training Parameters", "Result Explanation", "Inference", "Visualizing Weights"]
-            cnn_app_mode = st.sidebar.selectbox("Menu", cnn_menu)
+            cnn_menu = ["Load Dataset", "Training Parameters", "Result Explanation", "Inference"]
+            cnn_app_mode = st.sidebar.selectbox("Menu", cnn_menu, key="cnn_menu")
 
-            st.write(f"cnn_app_mode: {cnn_app_mode}")
+            # Initialize variables
+            mnist_loaded = False
+            XCnn_train, XCnn_test, y_train, y_test = None, None, None, None
+            cnn = None
 
             if 'cnn_app_mode' not in st.session_state:
-                st.session_state.nn_app_mode = "Load Dataset"
-
-            st.title("Convolutional Neural Networks and MNIST Image Dataset")
-            #add_vertical_space(2)
+                st.session_state.cnn_app_mode = "Load Dataset"
 
             if st.session_state.cnn_app_mode == "Load Dataset":
-                st.write("Welcome to the CNN and MNIST Image Dataset app. Let's get started by loading the dataset.")
-                
-                if st.button("Load MNIST Dataset"):
-                    mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
-                    X = mnist.data.astype('float32')
-                    y = mnist.target.astype('int64')
-                    X /= 255.0
+                st.title("Convolutional Neural Network and MNIST Image Dataset")
+                st.write("Welcome to the Convolutional Neural Network and MNIST Image Dataset app. Let's get started by loading the dataset.")
 
-                    XCnn = X.reshape(-1, 1, 28, 28)
-                    XCnn_train, XCnn_test, y_train, y_test = train_test_split(XCnn, y, test_size=0.25, random_state=42)
+                mnist = fetch_openml('mnist_784', as_frame=False, cache=False, version=1)
+                X = mnist.data.astype('float32')
+                y = mnist.target.astype('int64')
+                X /= 255.0
 
-                    st.success("Dataset loaded successfully!")
+                XCnn = X.reshape(-1, 1, 28, 28)
+                st.write("Splitting dataset")
+                XCnn_train, XCnn_test, y_train, y_test = train_test_split(XCnn, y, test_size=0.25, random_state=42)
 
-                    st.session_state.cnn_app_mode = "Parameter Selection"
+                st.session_state.mnist_loaded = True
 
-            if st.session_state.cnn_app_mode == "Parameter Selection":
-                st.write("In this section, you can choose training parameters for your Convolutional Neural Network (CNN) model.")
-                kernel_size = st.slider("Kernel Size", min_value=3, max_value=7, step=2)
-                learning_rate_cnn = st.slider("Learning Rate", min_value=0.001, max_value=0.01, step=0.001)
-                epochs_cnn = st.slider("Epochs", min_value=10, max_value=50, step=10)
+                # # Show a 5x5 grid of loaded MNIST images
+                # st.subheader('Sample Training Images and Labels')
+                # st.write('Here are some example images from the MNIST dataset')
 
-                st.write("You can adjust the kernel size, learning rate, and the number of training epochs to influence CNN model training.")
-                st.write("Once you've made your selections, proceed to the 'Result Explanation' page to see how these parameters affect the model.")
+                # plot_example(XCnn_train.squeeze(), y_train)
 
-                if st.button("Train Model"):
-                    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+                # Add Training Parameters section on the same page
+                st.title("Convolutional Neural Network and MNIST Image Dataset")
+                st.write("Let's configure the training parameters.")
 
-                    cnn = NeuralNetClassifier(
-                        Cnn,
-                        max_epochs=epochs_cnn,
-                        lr=learning_rate_cnn,
-                        optimizer=torch.optim.Adam
-                    )
+                st.write("In this section, you can choose training parameters for your convolutional neural network model.")
+                st.header("Training Parameters")
 
-                    cnn.fit(XCnn_train, y_train)
-                    st.success("Training complete! Proceed to Result Explanation.")
+                epochs = st.slider("Epochs", min_value=1, max_value=20, step=1)
+                learning_rate = st.slider("Learning Rate", min_value=0.001, max_value=0.1, step=0.01)
 
-                st.session_state.cnn_app_mode = "Result Explanation"
+                st.write("You can adjust the number of training epochs and the learning rate to influence model training.")
 
-            if st.session_state.cnn_app_mode == "Result Explanation":
-                    st.write("In this section, you will explore the results of the CNN model training based on the chosen parameters.")
-                    st.header("Result Explanation")
-                    st.header("Prediction")
-                    y_pred_cnn = cnn.predict(XCnn_test)
+                if st.button("Train model"):
+                    with st.spinner("Training model..."):
+                        # Train the model
+                        device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-                    accuracy = accuracy_score(y_test, y_pred_cnn)
-                    st.write(f'Accuracy: {accuracy:.3%}')
-                    #error_mask = y_pred != y_test
-                    #plot_example(X_test[error_mask], y_pred_cnn[error_mask])
-                    cnn_app_mode = "Result Explanation"
-                    st.write("The Convolutional Neural Network (CNN) has been trained using the selected parameters, and now we will delve into the results.")
-                    st.write("A confusion matrix helps us understand how the CNN model performs for different digits.")
+                        cnn = NeuralNetClassifier(Cnn).to(device)
+                        criterion = nn.CrossEntropyLoss()
+                        optimizer = optim.Adam(cnn.parameters(), lr=learning_rate)
+                        device = device
 
-                    if st.button("Proceed to Inference"):
-                        st.session_state.cnn_app_mode = "Inference"
+                        for epoch in range(epochs):
+                            cnn.train()
+                            optimizer.zero_grad()
+                            outputs = cnn(torch.from_numpy(XCnn_train).to(device))
+                            loss = criterion(outputs, torch.from_numpy(y_train).to(device))
+                            loss.backward()
+                            optimizer.step()
 
-            # if st.session_state.cnn_app_mode == "Inference":
-            #     st.write("In this section, you can use the trained CNN model to make predictions on new data.")
-            #     st.header("Inference")
-            #     st.write("You have two options for making predictions using the CNN model:")
-            #     st.write("1. Upload an image and run a prediction.")
-            #     st.write("2. Draw an image and predict the number using the CNN model.")
-            #     st.write("Choose either the 'Upload Image' or 'Draw Image' option below.")
-            #     inference_option_cnn = st.radio("Choose an Inference Method", ["Upload Image", "Draw Image"])
+                        st.session_state.cnn = cnn
 
-            #     if inference_option_cnn == "Upload Image":
-            #         st.write("You can upload an image, and the model will predict the digit.")
-            #         uploaded_image = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"])
-            #         if uploaded_image is not None:
-            #             image = Image.open(uploaded_image)
-            #             st.image(image, caption="Uploaded Image", use_column_width=True)
+            elif st.session_state.cnn_app_mode == "Result Explanation":
+                st.title("Result Explanation")
+                st.write("In this section, you will explore the results of the model training based on the chosen parameters.")
 
-            #             # Preprocess the image (replace with actual preprocessing steps)
-            #             image = transforms.Compose([transforms.Grayscale(num_output_channels=1),
-            #                                         transforms.Resize((28, 28)),
-            #                                         transforms.ToTensor()])(image)
-            #             image = image.unsqueeze(0)
+                if st.session_state.cnn is not None:
+                    if st.button("Show Results", key="show_results_btn"):
+                        cnn.eval()
+                        cnn.fit(XCnn_train, y_train)
+                        #XCnn_test_tensor = torch.from_numpy(XCnn_test).to(device)
+                        y_pred_cnn = cnn.predict(XCnn_test)
+                        accuracy = accuracy_score(y_test, y_pred_cnn)
 
-            #             # Make predictions using the CNN model
-            #             prediction = cnn.predict(image)
-            #             st.write(f"Predicted Digit: {prediction[0]}")                       
-        
+                        st.write(f'Accuracy: {accuracy:.3%}')
+
+                        # Confusion Matrix as an example of result visualization
+                        cm = confusion_matrix(y_test, y_pred_cnn)
+                        plt.figure(figsize=(8, 6))
+                        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=np.unique(y_test), yticklabels=np.unique(y_test))
+                        plt.xlabel('Predicted')
+                        plt.ylabel('True')
+                        plt.title('Confusion Matrix')
+                        st.pyplot()
+
+                        # Show a 5 x 5 grid of MNIST images that were misclassified
+                        misclassified_indices = np.where(y_pred_cnn != y_test)[0][:25]
+                        st.write("Misclassified Images:")
+                        for idx in misclassified_indices:
+                            st.image(XCnn_test[idx].squeeze(), caption=f"True: {y_test[idx]}, Predicted: {y_pred_cnn[idx]}")
+
+            elif st.session_state.cnn_app_mode == "Inference":
+                st.title("Inference")
+                st.write("In this section, you can upload an image for model inference.")
+
+                uploaded_image = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+
+                if uploaded_image is not None:
+                    st.image(uploaded_image, caption="Uploaded Image.", use_column_width=True)
+
+                    # Perform inference on the uploaded image using the trained model
+                    if st.session_state.cnn is not None:
+                        st.write("Performing Inference:")
+                        image_tensor = preprocess_image(uploaded_image)
+                        image_tensor = image_tensor.unsqueeze(0)  # Add batch dimension
+                        st.session_state.cnn.eval()
+                        with torch.no_grad():
+                            output = st.session_state.cnn(image_tensor.to(device))
+                        predicted_class = torch.argmax(output).item()
+                        st.write(f"Predicted Class: {predicted_class}")
       
-        # Hands-on Examples page
-        if app_mode == "Hands-on Examples 🔏":
-            st.title("Hands-on Examples")
-                
-               
-            st.write("Explore practical machine learning examples with interactive code snippets.")
-                
      
 if __name__ == '__main__':
     st.set_page_config(page_title="Handwritten Text Classification", layout="wide") 
