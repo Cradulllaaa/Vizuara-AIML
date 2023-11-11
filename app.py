@@ -74,6 +74,23 @@ def main():
             image = transform(image)
             return image
 
+        def plot_example(X, y):
+                    """Plot the first 25 images in a 5x5 grid."""
+                    plt.figure(figsize=(10, 10))  # Set figure size to be larger (you can adjust as needed)
+
+                    for i in range(5):  # For 5 rows
+                        for j in range(5):  # For 5 columns
+                            index = i * 5 + j
+                            plt.subplot(5, 5, index + 1)  # 5 rows, 5 columns, current index
+                            plt.imshow(X[index].reshape(28, 28), cmap='gray')  # Display the image in grayscale
+                            plt.xticks([])  # Remove x-ticks
+                            plt.yticks([])  # Remove y-ticks
+                            plt.title(y[index], fontsize=8)  # Display the label as title with reduced font size
+
+                    plt.subplots_adjust(wspace=0.5, hspace=0.5)  # Adjust spacing (you can modify as needed)
+                    plt.tight_layout()  # Adjust the spacing between plots for better visualization
+                    st.pyplot()  # Display the entire grid
+
         # Home page
         if app_mode == "Home 🏠":
             st.title("ML and NLP Interactive Learning Platform")
@@ -503,6 +520,7 @@ def main():
                 y = mnist.target.astype('int64')
 
                 # Split dataset
+                st.write("splitting dataset")
                 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
 
                 st.session_state.mnist_loaded = True
@@ -511,24 +529,10 @@ def main():
                 st.subheader('Sample Training Images and Labels')
                 st.write('Here are some example images from the MNIST dataset')
 
-                def plot_example(X, y):
-                    """Plot the first 25 images in a 5x5 grid."""
-                    plt.figure(figsize=(10, 10))  # Set figure size to be larger (you can adjust as needed)
-
-                    for i in range(5):  # For 5 rows
-                        for j in range(5):  # For 5 columns
-                            index = i * 5 + j
-                            plt.subplot(5, 5, index + 1)  # 5 rows, 5 columns, current index
-                            plt.imshow(X[index].reshape(28, 28), cmap='gray')  # Display the image in grayscale
-                            plt.xticks([])  # Remove x-ticks
-                            plt.yticks([])  # Remove y-ticks
-                            plt.title(y[index], fontsize=8)  # Display the label as title with reduced font size
-
-                    plt.subplots_adjust(wspace=0.5, hspace=0.5)  # Adjust spacing (you can modify as needed)
-                    plt.tight_layout()  # Adjust the spacing between plots for better visualization
-                    st.pyplot()  # Display the entire grid
-
+                
                 plot_example(X_train, y_train)
+
+                st.session_state.nn_app_mode = "Training Parameters"
 
             elif st.session_state.nn_app_mode == "Training Parameters":
                 st.title("Neural Networks and MNIST Image Dataset")
@@ -613,6 +617,8 @@ def main():
                             output = st.session_state.net(image_tensor)
                         predicted_class = torch.argmax(output).item()
                         st.write(f"Predicted Class: {predicted_class}")
+
+                        
         if app_mode == "CNN and MNIST 🧩":
 
             st.write(f"app_mode: {app_mode}")
