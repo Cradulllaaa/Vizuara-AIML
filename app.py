@@ -456,7 +456,7 @@ def main():
 
                         net = NeuralNetClassifier(ClassifierModule(mnist_dim, hidden_dim, output_dim))
                         criterion = torch.nn.CrossEntropyLoss()
-                        optimizer = torch.optim.Adam(lr=learning_rate)
+                        optimizer = torch.optim.Adam()
                         device = device
 
                         for epoch in range(epochs):
@@ -591,7 +591,7 @@ def main():
 
                         cnn = NeuralNetClassifier(Cnn).to(device)
                         criterion = nn.CrossEntropyLoss()
-                        optimizer = optim.Adam(cnn.parameters(), lr=learning_rate)
+                        optimizer = optim.Adam()
                         device = device
 
                         for epoch in range(epochs):
