@@ -469,52 +469,52 @@ def main():
 
                         st.session_state.net = net
 
-            elif st.session_state.nn_app_mode == "Result Explanation":
-                st.title("Result Explanation")
-                st.write("In this section, you will explore the results of the model training based on the chosen parameters.")
-
-                if st.session_state.net is not None:
-                    if st.button("Show Results", key="show_results_btn"):
-                        net.eval()
-                        net.fit(X_train, y_train)
-                        y_pred = net.predict(X_test)
-                        accuracy = accuracy_score(y_test, y_pred)
-                        st.write(f'Accuracy: {accuracy:.3%}')
-
-                        # Confusion Matrix as an example of result visualization
-                        cm = confusion_matrix(y_test, y_pred)
-                        plt.figure(figsize=(8, 6))
-                        heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=np.unique(y_test), yticklabels=np.unique(y_test))
-                        plt.xlabel('Predicted')
-                        plt.ylabel('True')
-                        plt.title('Confusion Matrix')
-                        st.pyplot()
-
-                        # Show a 5 x 5 grid of MNIST images that were misclassified
-                        misclassified_indices = np.where(y_pred != y_test)[0][:25]
-                        st.write("Misclassified Images:")
-                        for idx in misclassified_indices:
-                            st.image(X_test[idx].reshape(28, 28), caption=f"True: {y_test[idx]}, Predicted: {y_pred[idx]}")
-
-            elif st.session_state.nn_app_mode == "Inference":
-                st.title("Inference")
-                st.write("In this section, you can upload an image for model inference.")
-
-                uploaded_image = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
-
-                if uploaded_image is not None:
-                    st.image(uploaded_image, caption="Uploaded Image.", use_column_width=True)
-
-                    # Perform inference on the uploaded image using the trained model
-                    if st.session_state.net is not None:
-                        st.write("Performing Inference:")
-                        image_tensor = preprocess_image(uploaded_image)
-                        image_tensor = image_tensor.unsqueeze(0)  # Add batch dimension
-                        st.session_state.net.eval()
-                        with torch.no_grad():
-                            output = st.session_state.net(image_tensor)
-                        predicted_class = torch.argmax(output).item()
-                        st.write(f"Predicted Class: {predicted_class}")
+                    if st.session_state.nn_app_mode == "Result Explanation":
+                        st.title("Result Explanation")
+                        st.write("In this section, you will explore the results of the model training based on the chosen parameters.")
+        
+                        if st.session_state.net is not None:
+                            if st.button("Show Results", key="show_results_btn"):
+                                net.eval()
+                                net.fit(X_train, y_train)
+                                y_pred = net.predict(X_test)
+                                accuracy = accuracy_score(y_test, y_pred)
+                                st.write(f'Accuracy: {accuracy:.3%}')
+        
+                                # Confusion Matrix as an example of result visualization
+                                cm = confusion_matrix(y_test, y_pred)
+                                plt.figure(figsize=(8, 6))
+                                heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=np.unique(y_test), yticklabels=np.unique(y_test))
+                                plt.xlabel('Predicted')
+                                plt.ylabel('True')
+                                plt.title('Confusion Matrix')
+                                st.pyplot()
+        
+                                # Show a 5 x 5 grid of MNIST images that were misclassified
+                                misclassified_indices = np.where(y_pred != y_test)[0][:25]
+                                st.write("Misclassified Images:")
+                                for idx in misclassified_indices:
+                                    st.image(X_test[idx].reshape(28, 28), caption=f"True: {y_test[idx]}, Predicted: {y_pred[idx]}")
+        
+                    elif st.session_state.nn_app_mode == "Inference":
+                        st.title("Inference")
+                        st.write("In this section, you can upload an image for model inference.")
+        
+                        uploaded_image = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+        
+                        if uploaded_image is not None:
+                            st.image(uploaded_image, caption="Uploaded Image.", use_column_width=True)
+        
+                            # Perform inference on the uploaded image using the trained model
+                            if st.session_state.net is not None:
+                                st.write("Performing Inference:")
+                                image_tensor = preprocess_image(uploaded_image)
+                                image_tensor = image_tensor.unsqueeze(0)  # Add batch dimension
+                                st.session_state.net.eval()
+                                with torch.no_grad():
+                                    output = st.session_state.net(image_tensor)
+                                predicted_class = torch.argmax(output).item()
+                                st.write(f"Predicted Class: {predicted_class}")
 
         # CNN page
         if app_mode == "Convolutional Neural Networks 🤔":
@@ -604,74 +604,74 @@ def main():
 
                         st.session_state.cnn = cnn
 
-            elif st.session_state.cnn_app_mode == "Result Explanation":
-                st.title("Result Explanation")
-                st.write("In this section, you will explore the results of the model training based on the chosen parameters.")
+                    elif st.session_state.cnn_app_mode == "Result Explanation":
+                        st.title("Result Explanation")
+                        st.write("In this section, you will explore the results of the model training based on the chosen parameters.")
+        
+                        if st.session_state.cnn is not None:
+                            if st.button("Show Results", key="show_results_btn"):
+                                cnn.eval()
+                                cnn.fit(XCnn_train, y_train)
+                                #XCnn_test_tensor = torch.from_numpy(XCnn_test).to(device)
+                                y_pred_cnn = cnn.predict(XCnn_test)
+                                accuracy = accuracy_score(y_test, y_pred_cnn)
+        
+                                st.write(f'Accuracy: {accuracy:.3%}')
+        
+                                # Confusion Matrix as an example of result visualization
+                                cm = confusion_matrix(y_test, y_pred_cnn)
+                                fig, ax = plt.subplots(figsize=(8, 6))
+                                heatmap = plt.imshow(cm, cmap="Blues", interpolation="nearest", annot=True, fmt='d')
+                                plt.xlabel('Predicted')
+                                plt.ylabel('True')
+                                plt.title('Confusion Matrix')
+                                # Show colorbar
+                                fig.colorbar(heatmap)
+        
+                                # Set x and y axis labels and ticks
+                                ax.set_xlabel('Predicted')
+                                ax.set_ylabel('True')
+                                ax.set_xticks(np.arange(len(np.unique(y_test))))
+                                ax.set_xticklabels(np.unique(y_test))
+                                ax.set_yticks(np.arange(len(np.unique(y_test))))
+                                ax.set_yticklabels(np.unique(y_test))
+        
+                                # Display values inside the heatmap
+                                if annot:
+                                    for i in range(len(np.unique(y_test))):
+                                        for j in range(len(np.unique(y_test))):
+                                            ax.text(j, i, format(cm[i, j], fmt),
+                                                    ha="center", va="center",
+                                                    color="white" if cm[i, j] > cm.max() / 2 else "black")
+        
+                                # Display the plot using Streamlit
+                                st.pyplot(fig)
+                                # Show a 5 x 5 grid of MNIST images that were misclassified
+                                misclassified_indices = np.where(y_pred_cnn != y_test)[0][:25]
+                                st.write("Misclassified Images:")
+                                for idx in misclassified_indices:
+                                    st.image(XCnn_test[idx].squeeze(), caption=f"True: {y_test[idx]}, Predicted: {y_pred_cnn[idx]}")
 
-                if st.session_state.cnn is not None:
-                    if st.button("Show Results", key="show_results_btn"):
-                        cnn.eval()
-                        cnn.fit(XCnn_train, y_train)
-                        #XCnn_test_tensor = torch.from_numpy(XCnn_test).to(device)
-                        y_pred_cnn = cnn.predict(XCnn_test)
-                        accuracy = accuracy_score(y_test, y_pred_cnn)
-
-                        st.write(f'Accuracy: {accuracy:.3%}')
-
-                        # Confusion Matrix as an example of result visualization
-                        cm = confusion_matrix(y_test, y_pred_cnn)
-                        fig, ax = plt.subplots(figsize=(8, 6))
-                        heatmap = plt.imshow(cm, cmap="Blues", interpolation="nearest", annot=True, fmt='d')
-                        plt.xlabel('Predicted')
-                        plt.ylabel('True')
-                        plt.title('Confusion Matrix')
-                        # Show colorbar
-                        fig.colorbar(heatmap)
-
-                        # Set x and y axis labels and ticks
-                        ax.set_xlabel('Predicted')
-                        ax.set_ylabel('True')
-                        ax.set_xticks(np.arange(len(np.unique(y_test))))
-                        ax.set_xticklabels(np.unique(y_test))
-                        ax.set_yticks(np.arange(len(np.unique(y_test))))
-                        ax.set_yticklabels(np.unique(y_test))
-
-                        # Display values inside the heatmap
-                        if annot:
-                            for i in range(len(np.unique(y_test))):
-                                for j in range(len(np.unique(y_test))):
-                                    ax.text(j, i, format(cm[i, j], fmt),
-                                            ha="center", va="center",
-                                            color="white" if cm[i, j] > cm.max() / 2 else "black")
-
-                        # Display the plot using Streamlit
-                        st.pyplot(fig)
-                        # Show a 5 x 5 grid of MNIST images that were misclassified
-                        misclassified_indices = np.where(y_pred_cnn != y_test)[0][:25]
-                        st.write("Misclassified Images:")
-                        for idx in misclassified_indices:
-                            st.image(XCnn_test[idx].squeeze(), caption=f"True: {y_test[idx]}, Predicted: {y_pred_cnn[idx]}")
-
-            elif st.session_state.cnn_app_mode == "Inference":
-                st.title("Inference")
-                st.write("In this section, you can upload an image for model inference.")
-
-                uploaded_image = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
-
-                if uploaded_image is not None:
-                    st.image(uploaded_image, caption="Uploaded Image.", use_column_width=True)
-
-                    # Perform inference on the uploaded image using the trained model
-                    if st.session_state.cnn is not None:
-                        st.write("Performing Inference:")
-                        image_tensor = preprocess_image(uploaded_image)
-                        image_tensor = image_tensor.unsqueeze(0)  # Add batch dimension
-                        st.session_state.cnn.eval()
-                        with torch.no_grad():
-                            output = st.session_state.cnn(image_tensor.to(device))
-                        predicted_class = torch.argmax(output).item()
-                        st.write(f"Predicted Class: {predicted_class}")
-      
+                    elif st.session_state.cnn_app_mode == "Inference":
+                        st.title("Inference")
+                        st.write("In this section, you can upload an image for model inference.")
+        
+                        uploaded_image = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+        
+                        if uploaded_image is not None:
+                            st.image(uploaded_image, caption="Uploaded Image.", use_column_width=True)
+        
+                            # Perform inference on the uploaded image using the trained model
+                            if st.session_state.cnn is not None:
+                                st.write("Performing Inference:")
+                                image_tensor = preprocess_image(uploaded_image)
+                                image_tensor = image_tensor.unsqueeze(0)  # Add batch dimension
+                                st.session_state.cnn.eval()
+                                with torch.no_grad():
+                                    output = st.session_state.cnn(image_tensor.to(device))
+                                predicted_class = torch.argmax(output).item()
+                                st.write(f"Predicted Class: {predicted_class}")
+              
      
 if __name__ == '__main__':
     st.set_page_config(page_title="Handwritten Text Classification", layout="wide") 
