@@ -652,7 +652,7 @@ def main():
                                 for idx in misclassified_indices:
                                     st.image(XCnn_test[idx].squeeze(), caption=f"True: {y_test[idx]}, Predicted: {y_pred_cnn[idx]}")
 
-                    elif st.session_state.cnn_app_mode == "Inference":
+                elif st.session_state.cnn_app_mode == "Inference":
                         st.title("Inference")
                         st.write("In this section, you can upload an image for model inference.")
         
