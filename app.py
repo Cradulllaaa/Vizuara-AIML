@@ -1,6 +1,6 @@
 import streamlit as st
 import pickle
-import cv2
+#import cv2
 import torch
 import time
 import torch.nn as nn
