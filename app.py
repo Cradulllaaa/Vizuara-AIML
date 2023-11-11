@@ -1,6 +1,6 @@
 import streamlit as st
 import pickle
-import cv2
+import cv2 as cv
 import torch
 import seaborn as sns
 import time
@@ -39,7 +39,7 @@ def main():
             kernel = np.array([[-1, -1, -1],
                             [-1, 9, -1],
                             [-1, -1, -1]])
-            sharpened = cv2.filter2D(image, -1, kernel)
+            sharpened = cv.filter2D(image, -1, kernel)
             return sharpened
         
         def add_vertical_space(space):
@@ -106,7 +106,7 @@ def main():
             st.write(" Machine learning is used in a wide range of applications, including image recognition, natural language processing, recommendation systems, and more.")
             with st.columns([1, 5, 1])[1]:
                 
-                image = cv2.imread('images/ML_basics.png')
+                image = cv.imread('images/ML_basics.png')
                 sharpened_image = sharpen_image(image)
                 
                 #image('images/ML_basics.png', use_column_width=True)
