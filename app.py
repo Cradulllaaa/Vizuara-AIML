@@ -1,6 +1,5 @@
 import streamlit as st
 import pickle
-import cv2 as cv
 import torch
 import seaborn as sns
 import time
@@ -35,12 +34,12 @@ def main():
         app_mode = st.sidebar.selectbox("Menu",menu)
 
         # Function to sharpen an image
-        def sharpen_image(image):
-            kernel = np.array([[-1, -1, -1],
-                            [-1, 9, -1],
-                            [-1, -1, -1]])
-            sharpened = cv.filter2D(image, -1, kernel)
-            return sharpened
+        # def sharpen_image(image):
+        #     kernel = np.array([[-1, -1, -1],
+        #                     [-1, 9, -1],
+        #                     [-1, -1, -1]])
+        #     sharpened = cv.filter2D(image, -1, kernel)
+        #     return sharpened
         
         def add_vertical_space(space):
             for _ in range(space):
@@ -106,11 +105,11 @@ def main():
             st.write(" Machine learning is used in a wide range of applications, including image recognition, natural language processing, recommendation systems, and more.")
             with st.columns([1, 5, 1])[1]:
                 
-                image = cv.imread('images/ML_basics.png')
-                sharpened_image = sharpen_image(image)
+                st.image ('images/ML_basics.png')
+                #sharpened_image = sharpen_image(image)
                 
-                #image('images/ML_basics.png', use_column_width=True)
-                st.image(sharpened_image)
+                # #image('images/ML_basics.png', use_column_width=True)
+                # st.image(sharpened_image)
                 add_vertical_space(2)
 
             st.write("Key concepts in machine learning include data preprocessing, model training, and evaluation. Common algorithms include linear regression, decision trees, and neural networks.")
