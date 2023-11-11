@@ -1,7 +1,6 @@
 import streamlit as st
 import pickle
 import torch
-import seaborn as sns
 import time
 import torch.nn as nn
 import torch.nn.functional as F 
@@ -485,7 +484,7 @@ def main():
                         # Confusion Matrix as an example of result visualization
                         cm = confusion_matrix(y_test, y_pred)
                         plt.figure(figsize=(8, 6))
-                        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=np.unique(y_test), yticklabels=np.unique(y_test))
+                        heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=np.unique(y_test), yticklabels=np.unique(y_test))
                         plt.xlabel('Predicted')
                         plt.ylabel('True')
                         plt.title('Confusion Matrix')
@@ -546,6 +545,8 @@ def main():
             mnist_loaded = False
             XCnn_train, XCnn_test, y_train, y_test = None, None, None, None
             cnn = None
+            annot=True
+            fmt='d'
 
             if 'cnn_app_mode' not in st.session_state:
                 st.session_state.cnn_app_mode = "Load Dataset"
@@ -619,13 +620,32 @@ def main():
 
                         # Confusion Matrix as an example of result visualization
                         cm = confusion_matrix(y_test, y_pred_cnn)
-                        plt.figure(figsize=(8, 6))
-                        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=np.unique(y_test), yticklabels=np.unique(y_test))
+                        fig, ax = plt.subplots(figsize=(8, 6))
+                        heatmap = plt.imshow(cm, cmap="Blues", interpolation="nearest", annot=True, fmt='d')
                         plt.xlabel('Predicted')
                         plt.ylabel('True')
                         plt.title('Confusion Matrix')
-                        st.pyplot()
+                        # Show colorbar
+                        fig.colorbar(heatmap)
 
+                        # Set x and y axis labels and ticks
+                        ax.set_xlabel('Predicted')
+                        ax.set_ylabel('True')
+                        ax.set_xticks(np.arange(len(np.unique(y_test))))
+                        ax.set_xticklabels(np.unique(y_test))
+                        ax.set_yticks(np.arange(len(np.unique(y_test))))
+                        ax.set_yticklabels(np.unique(y_test))
+
+                        # Display values inside the heatmap
+                        if annot:
+                            for i in range(len(np.unique(y_test))):
+                                for j in range(len(np.unique(y_test))):
+                                    ax.text(j, i, format(cm[i, j], fmt),
+                                            ha="center", va="center",
+                                            color="white" if cm[i, j] > cm.max() / 2 else "black")
+
+                        # Display the plot using Streamlit
+                        st.pyplot(fig)
                         # Show a 5 x 5 grid of MNIST images that were misclassified
                         misclassified_indices = np.where(y_pred_cnn != y_test)[0][:25]
                         st.write("Misclassified Images:")
