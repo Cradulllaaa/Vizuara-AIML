@@ -604,7 +604,7 @@ def main():
 
                         st.session_state.cnn = cnn
 
-                    elif st.session_state.cnn_app_mode == "Result Explanation":
+                elif st.session_state.cnn_app_mode == "Result Explanation":
                         st.title("Result Explanation")
                         st.write("In this section, you will explore the results of the model training based on the chosen parameters.")
         
