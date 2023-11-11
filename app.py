@@ -520,7 +520,7 @@ def main():
                 y = mnist.target.astype('int64')
 
                 # Split dataset
-                st.write("splitting dataset")
+                st.write("Splitting dataset")
                 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
 
                 st.session_state.mnist_loaded = True
@@ -529,14 +529,11 @@ def main():
                 st.subheader('Sample Training Images and Labels')
                 st.write('Here are some example images from the MNIST dataset')
 
-                
                 plot_example(X_train, y_train)
 
-                st.session_state.nn_app_mode = "Training Parameters"
-
-            elif st.session_state.nn_app_mode == "Training Parameters":
+                # Add Training Parameters section on the same page
                 st.title("Neural Networks and MNIST Image Dataset")
-                st.write("Welcome to the Neural Networks and MNIST Image Dataset app. Let's configure the training parameters.")
+                st.write("Let's configure the training parameters.")
 
                 st.write("In this section, you can choose training parameters for your neural network model.")
                 st.header("Training Parameters")
@@ -618,7 +615,7 @@ def main():
                         predicted_class = torch.argmax(output).item()
                         st.write(f"Predicted Class: {predicted_class}")
 
-                        
+
         if app_mode == "CNN and MNIST 🧩":
 
             st.write(f"app_mode: {app_mode}")
