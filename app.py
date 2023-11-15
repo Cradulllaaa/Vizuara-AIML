@@ -425,7 +425,7 @@ def main():
                 st.write("Splitting dataset")
                 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
 
-                st.session_state.mnist_loaded = True
+                #st.session_state.mnist_loaded = True
 
                 # # Show a 5x5 grid of loaded MNIST images
                 # st.subheader('Sample Training Images and Labels')
